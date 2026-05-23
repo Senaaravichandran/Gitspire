@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gitspire — Repository Archaeology</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/animations.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="logo-area">
+    <span class="wordmark">Gitspire</span>
+    <span class="tagline">Repository Archaeology</span>
+  </div>
+  <div class="header-right">
+    <span class="gemini-badge">Powered by Gemini 1.5 Pro</span>
+  </div>
+</header>
+
+<section id="hero" class="hero">
+  <h1 class="text-title">Your code remembers. Let it speak.</h1>
+  <p class="hero-tagline">Gitspire reconstructs the invisible why-layer of any 
+    GitHub repository using Gemini's long-context reasoning.</p>
+  <div class="url-input-container">
+    <input type="text" id="repo-url" 
+      placeholder="https://github.com/owner/repo" 
+      autocomplete="off" spellcheck="false" />
+    <button id="analyze-btn" class="btn-primary">
+      Analyze Repository
+    </button>
+  </div>
+  <div class="error-message hidden" id="hero-error"></div>
+  <div class="demo-repos">
+    <span class="text-label">Try:</span>
+    <button class="demo-pill" data-url="https://github.com/tiangolo/fastapi">fastapi</button>
+    <button class="demo-pill" data-url="https://github.com/pallets/flask">flask</button>
+    <button class="demo-pill" data-url="https://github.com/psf/requests">requests</button>
+  </div>
+</section>
+
+<section id="progress-view" class="progress-view hidden">
+  <div class="progress-orb"></div>
+  <div class="progress-steps">
+    <div class="step" id="step-fetch">
+      <span class="step-indicator"></span>
+      Ingesting repository artifacts...
+    </div>
+    <div class="step" id="step-gemini">
+      <span class="step-indicator"></span>
+      Gemini reasoning over commit history...
+    </div>
+    <div class="step" id="step-extract">
+      <span class="step-indicator"></span>
+      Extracting architectural memory...
+    </div>
+    <div class="step" id="step-store">
+      <span class="step-indicator"></span>
+      Persisting to knowledge core...
+    </div>
+  </div>
+  <p class="progress-hint">This takes 30–90 seconds for large repositories.</p>
+</section>
+
+<section id="knowledge-core" class="knowledge-core hidden">
+  
+  <div class="repo-bar" id="repo-bar">
+    <!-- Populated by JS: repo name, language, stars, analyzed timestamp -->
+  </div>
+  
+  <div class="summary-card" id="summary-card">
+    <!-- Populated by JS: 2-3 sentence summary -->
+  </div>
+  
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="decisions">
+      Decision Atoms <span class="badge" id="badge-decisions">0</span>
+    </button>
+    <button class="tab-btn" data-tab="assumptions">
+      Assumption Graph <span class="badge" id="badge-assumptions">0</span>
+    </button>
+    <button class="tab-btn" data-tab="failures">
+      Failure Memory <span class="badge" id="badge-failures">0</span>
+    </button>
+    <button class="tab-btn ghost-tab" data-tab="ghosts">
+      Ghost Decisions <span class="badge danger" id="badge-ghosts">0</span>
+    </button>
+  </nav>
+  
+  <div class="tab-content">
+    <div class="tab-panel active" id="tab-decisions"></div>
+    <div class="tab-panel hidden"  id="tab-assumptions"></div>
+    <div class="tab-panel hidden"  id="tab-failures"></div>
+    <div class="tab-panel hidden"  id="tab-ghosts"></div>
+  </div>
+  
+  <div class="tools-grid">
+    
+    <div class="tool-panel" id="why-panel">
+      <div class="tool-header">
+        <span class="gemini-badge-icon">G</span>
+        <h3>Ask Why</h3>
+      </div>
+      <textarea id="query-input" rows="3"
+        placeholder="Why does the auth middleware skip /health routes?">
+      </textarea>
+      <button id="query-btn" class="btn-primary">Ask Gitspire</button>
+      <div id="query-response" class="tool-response hidden"></div>
+    </div>
+    
+    <div class="tool-panel" id="alarm-panel">
+      <div class="tool-header">
+        <span class="alarm-icon">⚠</span>
+        <h3>Assumption Alarm</h3>
+      </div>
+      <p class="tool-description">Paste new code to check against 
+        extracted assumptions.</p>
+      <textarea id="alarm-input" rows="6"
+        placeholder="Paste your code snippet here...">
+      </textarea>
+      <button id="alarm-btn" class="btn-danger">Check Assumptions</button>
+      <div id="alarm-response" class="tool-response hidden"></div>
+    </div>
+    
+    <div class="tool-panel" id="onboard-panel">
+      <div class="tool-header">
+        <span class="onboard-icon">→</span>
+        <h3>Onboarding Path</h3>
+      </div>
+      <input type="text" id="onboard-input" 
+        placeholder="I want to add OAuth2 authentication..." />
+      <button id="onboard-btn" class="btn-secondary">Generate Path</button>
+      <div id="onboard-response" class="tool-response hidden"></div>
+    </div>
+    
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/panels.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

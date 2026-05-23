@@ -1,0 +1,42 @@
+import hashlib
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse
+from api.models.requests import QueryRequest
+from api.models.responses import QueryResponse
+from core.gemini_client import GeminiClient
+from core.firebase_client import FirebaseClient
+
+router = APIRouter()
+gemini_client = GeminiClient()
+firebase_client = FirebaseClient()
+
+def make_error(status_code: int, error: str, error_code: str):
+    return JSONResponse(status_code=status_code, content={"success": False, "error": error, "error_code": error_code})
+
+@router.post("/query", response_model=QueryResponse)
+async def query_repository(request: QueryRequest):
+    if len(request.question) > 500:
+        return make_error(400, "Question exceeds max 500 characters", "BAD_REQUEST")
+
+    core = await firebase_client.get_knowledge_core(request.repo_url)
+    if not core:
+        return make_error(404, "Analyze this repository first", "NOT_ANALYZED")
+
+    q_hash = hashlib.md5(request.question.encode()).hexdigest()
+    cached_resp = await firebase_client.get_cached_query(request.repo_url, q_hash)
+    if cached_resp:
+        return QueryResponse(**cached_resp)
+
+    gemini_result = await gemini_client.answer_query(request.repo_url, core, request.question)
+    if "error" in gemini_result or "parse_error" in gemini_result:
+        return make_error(500, "Gemini failed to answer query", "GEMINI_ERROR")
+
+    answer = str(gemini_result.get("answer", "No answer provided."))
+    citations = gemini_result.get("citations", [])
+    if not isinstance(citations, list):
+        citations = []
+    confidence = str(gemini_result.get("confidence", "low"))
+
+    response = QueryResponse(success=True, answer=answer, citations=citations, confidence=confidence)
+    await firebase_client.save_query_cache(request.repo_url, q_hash, response.model_dump())
+    return response

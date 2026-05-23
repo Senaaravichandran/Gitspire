@@ -1,0 +1,137 @@
+.decision-card, .assumption-card, .failure-card, .ghost-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  transition: border-color var(--transition-base), 
+              box-shadow var(--transition-base);
+}
+.decision-card:hover { 
+  border-color: var(--border-medium); 
+  box-shadow: var(--shadow-glow); 
+}
+
+.confidence-bar {
+  height: 3px; background: var(--bg-tertiary);
+  border-radius: 2px; overflow: hidden; margin-top: var(--space-3);
+}
+.confidence-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-secondary), 
+              var(--accent-primary));
+  transition: width 800ms ease;
+}
+
+.assumption-card[data-risk="critical"] { 
+  border-left: 3px solid var(--accent-danger); 
+}
+.assumption-card[data-risk="moderate"] { 
+  border-left: 3px solid var(--accent-warning); 
+}
+.assumption-card[data-risk="low"] { 
+  border-left: 3px solid var(--accent-success); 
+}
+
+.ghost-card {
+  background: var(--accent-danger-soft-2);
+  border-color: var(--border-ghost);
+}
+.ghost-card::before {
+  content: "GHOST DECISION";
+  display: block; margin-bottom: var(--space-3);
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  color: var(--accent-danger); opacity: 0.8;
+}
+
+.evidence-chip {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--accent-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+.evidence-chip:hover { background: var(--bg-elevated); }
+
+.gemini-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 999px;
+  background: linear-gradient(135deg, var(--gemini-start), var(--gemini-end));
+  color: white; font-size: 12px; font-weight: 600;
+}
+.gemini-badge-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gemini-start), var(--gemini-end));
+  font-size: 12px; font-weight: 700; color: white;
+}
+
+.alarm-active {
+  animation: alarm-pulse 0.5s ease 3;
+  border-color: var(--accent-danger) !important;
+  box-shadow: var(--shadow-glow-danger) !important;
+}
+
+.risk-badge {
+  display: inline-block; padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 11px; font-weight: 600; 
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.risk-badge.critical { 
+  background: var(--accent-danger-soft); color: var(--accent-danger); 
+}
+.risk-badge.moderate { 
+  background: var(--accent-warning-soft); color: var(--accent-warning); 
+}
+.risk-badge.low { 
+  background: var(--accent-success-soft); color: var(--accent-success); 
+}
+
+.repo-bar {
+  display: flex; align-items: center; gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-5);
+}
+.summary-card {
+  padding: var(--space-5);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  border-left: 3px solid var(--accent-primary);
+  margin-bottom: var(--space-5);
+  line-height: 1.7; color: var(--text-secondary);
+}
+
+.tab-panel {
+  display: flex; flex-direction: column; gap: var(--space-4);
+}
+
+.tool-response {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  font-size: 13px; line-height: 1.7;
+}
+.tool-response.violation { 
+  border-color: var(--accent-danger); 
+  background: var(--accent-danger-soft-2); 
+}
+.tool-response.clear { 
+  border-color: var(--accent-success); 
+  background: var(--accent-success-soft-2); 
+}
+
+.warning-advisory {
+  margin-top: var(--space-3);
+  padding: var(--space-2);
+  background: var(--accent-warning-soft-2);
+  border-left: 2px solid var(--accent-warning);
+}

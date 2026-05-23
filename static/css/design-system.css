@@ -1,0 +1,79 @@
+:root {
+  --bg-primary:    #0a0a0f;
+  --bg-secondary:  #12121a;
+  --bg-tertiary:   #1a1a26;
+  --bg-elevated:   #22223a;
+
+  --accent-primary:   #7c6af7;
+  --accent-secondary: #3ecfcf;
+  --accent-danger:    #f76a6a;
+  --accent-warning:   #f7a76a;
+  --accent-success:   #6af7a7;
+
+  --text-primary:   #e8e8f0;
+  --text-secondary: #9898b0;
+  --text-tertiary:  #5a5a78;
+  --text-code:      #a8e6cf;
+
+  --border-subtle: rgba(124, 106, 247, 0.15);
+  --border-medium: rgba(124, 106, 247, 0.3);
+  --border-strong: rgba(124, 106, 247, 0.6);
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;
+  --space-4: 16px;  --space-5: 24px;  --space-6: 32px;
+  --space-7: 48px;  --space-8: 64px;
+
+  --radius-sm: 4px;  --radius-md: 8px;
+  --radius-lg: 12px; --radius-xl: 16px;
+
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+  --shadow-glow: 0 0 20px rgba(124, 106, 247, 0.2);
+  --shadow-glow-danger: 0 0 20px rgba(247, 106, 106, 0.2);
+
+  --bg-header: rgba(10, 10, 15, 0.9);
+  --glow-primary-weak: rgba(124, 106, 247, 0.2);
+  --glow-primary-strong: rgba(124, 106, 247, 0.5);
+
+  --accent-danger-soft: rgba(247, 106, 106, 0.15);
+  --accent-danger-soft-2: rgba(247, 106, 106, 0.05);
+  --accent-warning-soft: rgba(247, 167, 106, 0.15);
+  --accent-warning-soft-2: rgba(247, 167, 106, 0.1);
+  --accent-success-soft: rgba(106, 247, 167, 0.15);
+  --accent-success-soft-2: rgba(106, 247, 167, 0.05);
+
+  --border-danger: rgba(247, 106, 106, 0.3);
+  --border-warning: rgba(247, 167, 106, 0.3);
+  --border-ghost: rgba(247, 106, 106, 0.2);
+
+  --gemini-start: #4285f4;
+  --gemini-end: #9c27b0;
+
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
+}
+
+/* Base body */
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Typography scale */
+.text-title    { font-size: 28px; font-weight: 600; }
+.text-heading  { font-size: 18px; font-weight: 600; }
+.text-label    { font-size: 11px; font-weight: 500; 
+                  letter-spacing: 0.05em; text-transform: uppercase; 
+                  color: var(--text-tertiary); }
+.text-section  { font-size: 14px; font-weight: 600; 
+                  letter-spacing: 0.08em; text-transform: uppercase; 
+                  color: var(--text-secondary); }
+.text-code     { font-family: var(--font-mono); font-size: 12px; 
+                  color: var(--text-code); }
+.hidden        { display: none !important; }
