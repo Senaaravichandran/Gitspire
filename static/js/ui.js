@@ -32,10 +32,16 @@ function renderEvidenceChip(evidence) {
 function renderDecisionAtom(atom) {
   const chips = (atom.evidence || []).map(renderEvidenceChip).join('');
   const pct = Math.max(0, Math.min(100, (atom.confidence || 0) * 100));
+    const translationBadge = atom.translated_source
+      ? `<span class="translation-badge">Source: ${String(atom.source_language || '').toUpperCase()} (translated)</span>`
+    : '';
   
   return `
     <div class="decision-card">
-      <h3 class="text-heading" style="margin-bottom: var(--space-2);">${atom.decision}</h3>
+      <div class="decision-header">
+        <h3 class="text-heading">${atom.decision}</h3>
+        ${translationBadge}
+      </div>
       <p class="text-secondary" style="margin-bottom: var(--space-4);">${atom.reasoning}</p>
       <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2);">
         <span class="text-label">Confidence: ${Math.round(pct)}%</span>

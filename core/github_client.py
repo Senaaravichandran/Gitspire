@@ -4,6 +4,7 @@ import asyncio
 import base64
 import urllib.parse
 from typing import Dict, List, Tuple
+from core.translation import TranslationService, update_language_stats
 
 class GitHubClient:
     BASE_URL = "https://api.github.com"
@@ -13,6 +14,7 @@ class GitHubClient:
         token = os.environ.get("GITHUB_TOKEN")
         if token:
             self.headers["Authorization"] = f"token {token}"
+        self.translation = TranslationService()
             
     def parse_repo_url(self, url: str) -> Tuple[str, str]:
         # Parse "https://github.com/owner/repo" → ("owner", "repo")
@@ -230,8 +232,15 @@ class GitHubClient:
                         
         return key_files
 
-    def build_archaeology_context(self, bundle: dict) -> str:
+    def build_archaeology_context(self, bundle: dict) -> tuple[str, dict]:
         HARD_LIMIT = 800000
+
+        translation_stats = {
+            "languages_detected": [],
+            "translated_artifact_count": 0,
+            "language_distribution": {},
+            "translation_enabled": self.translation.enabled
+        }
         
         metadata_str = "=== REPOSITORY METADATA ===\n"
         for k, v in bundle.get("metadata", {}).items():
@@ -248,18 +257,65 @@ class GitHubClient:
         prs = list(bundle.get("pull_requests", []))
 
         def build_context_text(commits_list, issues_list, prs_list) -> str:
-            ctx = metadata_str + key_files_str
-            ctx += "=== COMMIT HISTORY (oldest first) ===\n"
+            commit_lines = []
+            issue_lines = []
+            pr_lines = []
+
             for c in commits_list:
-                ctx += f"[{c['sha']} | {c['date']} | {c['author']} | {c['message']}]\n"
+                message_result = self.translation.translate_text(c.get("message", ""))
+                update_language_stats(translation_stats, message_result.language, message_result.translated_source)
+                commit_lines.append(
+                    f"[{c['sha']} | {c['date']} | {c['author']} | "
+                    f"ORIGINAL({message_result.language}): {message_result.original} | "
+                    f"EN: {message_result.translated}]"
+                )
+
+            for i in issues_list:
+                title_result = self.translation.translate_text(i.get("title", ""))
+                body_result = self.translation.translate_text(i.get("body", ""))
+                update_language_stats(translation_stats, title_result.language, title_result.translated_source)
+                update_language_stats(translation_stats, body_result.language, body_result.translated_source)
+                issue_lines.append(
+                    f"[#{i['number']} | {i['state']} | "
+                    f"ORIGINAL({title_result.language}): {title_result.original} | "
+                    f"EN: {title_result.translated}\n "
+                    f"ORIGINAL({body_result.language}): {body_result.original}\n "
+                    f"EN: {body_result.translated}]"
+                )
+
+            for pr in prs_list:
+                title_result = self.translation.translate_text(pr.get("title", ""))
+                body_result = self.translation.translate_text(pr.get("body", ""))
+                update_language_stats(translation_stats, title_result.language, title_result.translated_source)
+                update_language_stats(translation_stats, body_result.language, body_result.translated_source)
+                pr_lines.append(
+                    f"[#{pr['number']} | {pr['state']} | "
+                    f"ORIGINAL({title_result.language}): {title_result.original} | "
+                    f"EN: {title_result.translated}\n "
+                    f"ORIGINAL({body_result.language}): {body_result.original}\n "
+                    f"EN: {body_result.translated}]"
+                )
+
+            ctx = metadata_str + key_files_str
+            ctx += "\n=== LANGUAGE ANALYTICS ===\n"
+            if translation_stats["language_distribution"]:
+                languages = sorted(translation_stats["language_distribution"].keys())
+                ctx += f"languages_detected: {', '.join(languages)}\n"
+                ctx += f"translated_artifact_count: {translation_stats['translated_artifact_count']}\n"
+                ctx += f"language_distribution: {translation_stats['language_distribution']}\n"
+            else:
+                ctx += "languages_detected: unknown\n"
+                ctx += "translated_artifact_count: 0\n"
+                ctx += "language_distribution: {}\n"
+
+            ctx += "=== COMMIT HISTORY (oldest first) ===\n"
+            ctx += "\n".join(commit_lines) + "\n"
 
             ctx += "\n=== ISSUES (all states) ===\n"
-            for i in issues_list:
-                ctx += f"[#{i['number']} | {i['state']} | {i['title']}\n {i.get('body', '')}]\n"
+            ctx += "\n".join(issue_lines) + "\n"
 
             ctx += "\n=== PULL REQUESTS ===\n"
-            for pr in prs_list:
-                ctx += f"[#{pr['number']} | {pr['state']} | {pr['title']}\n {pr.get('body', '')}]\n"
+            ctx += "\n".join(pr_lines) + "\n"
 
             return ctx
 
@@ -293,4 +349,5 @@ class GitHubClient:
         token_estimate = char_count // 4
 
         header = f"TOTAL CONTEXT: ~{char_count} chars, est. {token_estimate} tokens\n\n"
-        return header + context
+        translation_stats["languages_detected"] = sorted(translation_stats["language_distribution"].keys())
+        return header + context, translation_stats

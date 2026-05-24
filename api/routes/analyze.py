@@ -50,7 +50,7 @@ async def analyze_repository(request: AnalyzeRequest, req: Request):
         return make_error(500, f"GitHub error: {e}", "GITHUB_ERROR")
 
     # 6. Build context
-    context = github_client.build_archaeology_context(bundle)
+    context, translation_metadata = github_client.build_archaeology_context(bundle)
 
     # 7. Gemini Analysis
     gemini_result = await gemini_client.analyze_repository(context)
@@ -63,7 +63,7 @@ async def analyze_repository(request: AnalyzeRequest, req: Request):
 
     # 9. Parse into KnowledgeCore
     try:
-        core = parse_knowledge_core(url, gemini_result)
+        core = parse_knowledge_core(url, gemini_result, translation_metadata)
     except Exception as e:
         return make_error(500, f"Parsing error: {e}", "PARSE_ERROR")
 

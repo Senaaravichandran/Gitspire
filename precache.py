@@ -10,9 +10,9 @@ async def precache(repo_url):
   fb = FirebaseClient()
   owner, repo = gh.parse_repo_url(repo_url)
   bundle = await gh.fetch_repository_bundle(owner, repo)
-  context = gh.build_archaeology_context(bundle)
+  context, translation_metadata = gh.build_archaeology_context(bundle)
   raw = await gem.analyze_repository(context)
-  core = parse_knowledge_core(repo_url, raw)
+  core = parse_knowledge_core(repo_url, raw, translation_metadata)
   await fb.save_knowledge_core(repo_url, core.model_dump())
   print(f"Cached: {repo_url}")
 

@@ -15,7 +15,11 @@ Output: JSON object with exact schema:
       "decision": "Short description of architectural choice",
       "reasoning": "Specific inferred reasoning with evidence citations",
       "evidence": ["commit:abc1234", "issue:#42", "pr:#7"],
-      "confidence": 0.85
+      "confidence": 0.85,
+      "translated_source": true,
+      "source_language": "ja",
+      "original_excerpt": "original text",
+      "translated_excerpt": "translated text"
     }}
   ],
   "assumptions": [
@@ -39,7 +43,60 @@ Output: JSON object with exact schema:
       "observation": "What looks intentional but has zero documentation trail",
       "possible_reasons": ["Reason 1", "Reason 2"]
     }}
-  ]
+  ],
+  "regretted_decisions": [
+    {{
+      "title": "Short label for the regretted decision",
+      "original_decision": "What was chosen originally",
+      "why_it_exists": "Constraints or context that led to it",
+      "regret_signals": ["commit:abc1234", "issue:#42"],
+      "emotional_evidence": "Inferred discomfort based on patterns",
+      "architectural_consequences": "Downstream impact",
+      "current_risk_level": "low",
+      "confidence_score": 0.5
+    }}
+  ],
+  "orphaned_architecture": [
+    {{
+      "decision_title": "Decision atom title",
+      "subsystem": "Area or module impacted",
+      "original_author": "Contributor handle or name",
+      "last_seen_activity": "ISO date or short description",
+      "active_status": "inactive",
+      "criticality": "medium",
+      "orphan_risk": "medium",
+      "why_dangerous": "Why this is risky now",
+      "hidden_assumptions": ["assumption A", "assumption B"],
+      "suggested_stabilization_steps": ["step 1", "step 2"],
+      "confidence_score": 0.5
+    }}
+  ],
+  "pulse_report": {{
+    "overall_summary": {{
+      "overall_freshness_score": 0,
+      "aging_decision_count": 0,
+      "stale_decision_count": 0,
+      "critical_decision_count": 0,
+      "summary": ""
+    }},
+    "decisions": [
+      {{
+        "decision_id": "da_001",
+        "decision_title": "Decision atom title",
+        "status": "STABLE",
+        "freshness_score": 75,
+        "original_reasoning": "Original rationale",
+        "what_changed": "Ecosystem changes since then",
+        "current_ecosystem_state": "Todays state",
+        "modern_alternatives": ["Alt A", "Alt B"],
+        "assumption_validity": "Whether assumptions still hold",
+        "reevaluation_needed": false,
+        "risk_summary": "Summary of risk",
+        "supporting_signals": ["signal 1", "signal 2"],
+        "confidence_score": 0.5
+      }}
+    ]
+  }}
 }}
 
 Rules:
@@ -49,6 +106,9 @@ Rules:
 - confidence is float 0.0–1.0
 - decision_atoms: cover 5-10 most architecturally significant decisions
 - ghost_decisions: only choices with zero documentation trail
+- regretted_decisions and orphaned_architecture are optional but must be arrays (empty if none)
+- pulse_report is optional; if present, it must include overall_summary and decisions
+- decision_atoms may include optional translation metadata fields when sourced from translated artifacts
 - If the repo has no non-obvious decisions, say so in summary, return empty arrays
 """
 

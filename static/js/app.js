@@ -124,9 +124,24 @@ function renderKnowledgeCore(core) {
     (core.ghost_decisions || []).length;
   
   // Repo bar
+    const langs = (core.languages_detected || []).map(l => l.toUpperCase()).join(' | ');
+  const langLine = core.languages_detected && core.languages_detected.length > 0
+    ? `
+      <div class="lang-row">
+        <span class="lang-icon">🌐</span>
+        <span class="text-label">${core.languages_detected.length} languages detected</span>
+        <span class="lang-codes">${langs}</span>
+        <span class="text-label">${core.translated_artifact_count || 0} artifacts translated</span>
+      </div>
+    `
+    : '';
+
   document.getElementById('repo-bar').innerHTML = `
-    <strong>${core.repo_url.replace('https://github.com/','')}</strong>
-    <span class="text-label">Analyzed ${new Date(core.analyzed_at).toLocaleString()}</span>
+    <div class="repo-main">
+      <strong>${core.repo_url.replace('https://github.com/','')}</strong>
+      <span class="text-label">Analyzed ${new Date(core.analyzed_at).toLocaleString()}</span>
+    </div>
+    ${langLine}
   `;
 }
 
