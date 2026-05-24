@@ -1,6 +1,6 @@
 .app-header {
   position: sticky; top: 0; z-index: 100;
-  display: flex; align-items: center; 
+  display: flex; align-items: center;
   justify-content: space-between;
   padding: var(--space-4) var(--space-6);
   background: var(--bg-header);
@@ -11,7 +11,29 @@
 .logo-area { display: flex; flex-direction: column; gap: 2px; }
 .wordmark { font-size: 18px; font-weight: 700; letter-spacing: 0.12em; }
 .logo-area .tagline { font-size: 11px; color: var(--text-secondary); letter-spacing: 0.06em; }
-.header-right { display: flex; align-items: center; gap: var(--space-3); }
+.header-left { display: flex; align-items: center; gap: var(--space-5); }
+.header-right { display: flex; align-items: center; gap: var(--space-3); align-self: flex-start; }
+
+.gemini-float {
+  position: fixed;
+  left: clamp(18px, 4vw, 48px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  pointer-events: none;
+}
+.gemini-lottie {
+  width: clamp(140px, 18vw, 220px);
+  height: clamp(140px, 18vw, 220px);
+}
+
+@media (max-width: 720px) {
+  .app-header { flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+  .header-left { width: 100%; justify-content: space-between; }
+  .header-right { justify-content: flex-start; }
+  .gemini-float { left: 12px; }
+  .gemini-lottie { width: 120px; height: 120px; }
+}
 
 .hero {
   max-width: 680px; margin: 0 auto;

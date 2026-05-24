@@ -18,14 +18,20 @@
 <body>
 
 <header class="app-header">
-  <div class="logo-area">
-    <span class="wordmark">Gitspire</span>
-    <span class="tagline">Repository Archaeology</span>
+  <div class="header-left">
+    <div class="logo-area">
+      <span class="wordmark">Gitspire</span>
+      <span class="tagline">Repository Archaeology</span>
+    </div>
   </div>
   <div class="header-right">
     <span class="gemini-badge">Powered by Gemini 1.5 Pro</span>
   </div>
 </header>
+
+<div class="gemini-float" aria-hidden="true">
+  <div id="gemini-lottie" class="gemini-lottie" aria-label="Gemini animation"></div>
+</div>
 
 <section id="hero" class="hero">
   <h1 class="text-title">Your code remembers. Let it speak.</h1>
@@ -146,6 +152,7 @@
 </section>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
 <script src="/js/api.js"></script>
 <script src="/js/ui.js"></script>
 <script src="/js/panels.js"></script>

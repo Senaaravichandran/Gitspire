@@ -6,6 +6,39 @@ const AppState = {
 const state = { current: AppState.IDLE, repo: null, core: null };
 window._currentRepo = null;
 
+let geminiLottieInitialized = false;
+async function initGeminiLottie() {
+  if (geminiLottieInitialized) return;
+  if (!window.lottie) return;
+  const container = document.getElementById('gemini-lottie');
+  if (!container) return;
+
+  const candidates = [
+    '/gemini.json',
+    '/static/gemini.json',
+    'gemini.json'
+  ];
+
+  for (const url of candidates) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const animationData = await res.json();
+      window.lottie.loadAnimation({
+        container,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        animationData
+      });
+      geminiLottieInitialized = true;
+      break;
+    } catch (error) {
+      continue;
+    }
+  }
+}
+
 function transition(newState) {
   state.current = newState;
   
@@ -36,6 +69,10 @@ function transition(newState) {
     knowledgeCore.classList.remove('hidden');
   }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  initGeminiLottie();
+});
 
 let progressTimer = null;
 function startProgressSimulation() {
