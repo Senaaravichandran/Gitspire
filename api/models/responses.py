@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class DecisionAtom(BaseModel):
     id: str
@@ -15,7 +15,7 @@ class Assumption(BaseModel):
     id: str
     statement: str
     risk_level: str       # "critical" | "moderate" | "low"
-    depends_on: list[str] # IDs of other assumptions
+    depends_on: list[str] = Field(default_factory=list)  # IDs of other assumptions
 
 class FailureRecord(BaseModel):
     approach: str

@@ -6,36 +6,71 @@ const AppState = {
 const state = { current: AppState.IDLE, repo: null, core: null };
 window._currentRepo = null;
 
-let geminiLottieInitialized = false;
-async function initGeminiLottie() {
-  if (geminiLottieInitialized) return;
+const initializedLottieContainers = new Set();
+let loadingAnimationDataPromise = null;
+
+async function getLoadingAnimationData() {
+  if (loadingAnimationDataPromise) return loadingAnimationDataPromise;
+
+  loadingAnimationDataPromise = (async () => {
+    const candidates = [
+      '/gemini.json',
+      '/static/gemini.json',
+      'gemini.json'
+    ];
+
+    for (const url of candidates) {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) continue;
+        return await res.json();
+      } catch (error) {
+        continue;
+      }
+    }
+
+    return null;
+  })();
+
+  return loadingAnimationDataPromise;
+}
+
+async function initLoadingLottie(containerId) {
+  if (initializedLottieContainers.has(containerId)) return;
   if (!window.lottie) return;
-  const container = document.getElementById('gemini-lottie');
+  const container = document.getElementById(containerId);
   if (!container) return;
 
-  const candidates = [
-    '/gemini.json',
-    '/static/gemini.json',
-    'gemini.json'
-  ];
+  const animationData = await getLoadingAnimationData();
+  if (!animationData) return;
 
-  for (const url of candidates) {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) continue;
-      const animationData = await res.json();
-      window.lottie.loadAnimation({
-        container,
-        renderer: 'svg',
-        loop: true,
-        autoplay: true,
-        animationData
-      });
-      geminiLottieInitialized = true;
-      break;
-    } catch (error) {
-      continue;
-    }
+  const animationPayload = typeof structuredClone === 'function'
+    ? structuredClone(animationData)
+    : JSON.parse(JSON.stringify(animationData));
+
+  window.lottie.loadAnimation({
+    container,
+    renderer: 'svg',
+    loop: true,
+    autoplay: true,
+    animationData: animationPayload
+  });
+
+  initializedLottieContainers.add(containerId);
+}
+
+async function loadRuntimeMeta() {
+  const badge = document.getElementById('model-badge');
+  if (!badge) return;
+
+  try {
+    const meta = await API.getMeta();
+    window.GITSPIRE_FRONTEND_URL = meta.frontend_url || null;
+    badge.textContent = meta.model_display_name
+      ? `Powered by ${meta.model_display_name}`
+      : 'Powered by Gemini';
+  } catch (error) {
+    badge.textContent = 'Powered by Gemini';
   }
 }
 
@@ -71,7 +106,10 @@ function transition(newState) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  initGeminiLottie();
+  initLoadingLottie('gemini-lottie');
+  initLoadingLottie('progress-lottie');
+  loadRuntimeMeta();
+  renderGuardVerdict(null);
 });
 
 let progressTimer = null;
@@ -98,6 +136,7 @@ function stopProgressSimulation() {
 function renderKnowledgeCore(core) {
   window._currentRepo = core.repo_url;
   document.getElementById('summary-card').textContent = core.summary;
+  renderGuardVerdict(core);
   
   // Decision Atoms tab
   document.getElementById('tab-decisions').innerHTML = 
@@ -122,13 +161,40 @@ function renderKnowledgeCore(core) {
     (core.ghost_decisions || []).map(renderGhostDecision).join('');
   document.getElementById('badge-ghosts').textContent = 
     (core.ghost_decisions || []).length;
+
+  // Regretted Decisions tab
+  document.getElementById('tab-regrets').innerHTML =
+    (core.regretted_decisions || []).length > 0
+      ? (core.regretted_decisions || []).map(renderRegrettedDecision).join('')
+      : renderEmptyState(
+          'No regretted decisions detected',
+          'Gemini did not infer any high-confidence architectural regrets for this repository analysis.'
+        );
+  document.getElementById('badge-regrets').textContent =
+    (core.regretted_decisions || []).length;
+
+  // Orphaned Architecture tab
+  document.getElementById('tab-orphans').innerHTML =
+    (core.orphaned_architecture || []).length > 0
+      ? (core.orphaned_architecture || []).map(renderOrphanedArchitecture).join('')
+      : renderEmptyState(
+          'No orphaned architecture flagged',
+          'This analysis did not identify architecture that appears to have lost an active owner.'
+        );
+  document.getElementById('badge-orphans').textContent =
+    (core.orphaned_architecture || []).length;
+
+  // Decision Pulse tab
+  document.getElementById('tab-pulse').innerHTML = renderPulseReport(core.pulse_report);
+  document.getElementById('badge-pulse').textContent =
+    Array.isArray(core.pulse_report?.decisions) ? core.pulse_report.decisions.length : 0;
   
   // Repo bar
     const langs = (core.languages_detected || []).map(l => l.toUpperCase()).join(' | ');
   const langLine = core.languages_detected && core.languages_detected.length > 0
     ? `
       <div class="lang-row">
-        <span class="lang-icon">🌐</span>
+        <span class="lang-icon">${renderIcon('icon-globe', 'lang-icon-svg')}</span>
         <span class="text-label">${core.languages_detected.length} languages detected</span>
         <span class="lang-codes">${langs}</span>
         <span class="text-label">${core.translated_artifact_count || 0} artifacts translated</span>

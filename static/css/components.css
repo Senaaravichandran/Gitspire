@@ -1,4 +1,6 @@
-.decision-card, .assumption-card, .failure-card, .ghost-card {
+.decision-card, .assumption-card, .failure-card, .ghost-card,
+.regret-card, .orphan-card, .pulse-card, .pulse-summary-card,
+.insight-empty-state, .detail-list-card {
   background: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
@@ -9,6 +11,38 @@
 .decision-card:hover { 
   border-color: var(--border-medium); 
   box-shadow: var(--shadow-glow); 
+}
+
+.regret-card,
+.orphan-card,
+.pulse-card,
+.pulse-summary-card {
+  box-shadow: var(--shadow-card);
+}
+
+.regret-card {
+  border-left: 3px solid var(--accent-warning);
+}
+
+.orphan-card {
+  border-left: 3px solid var(--accent-danger);
+}
+
+.pulse-card,
+.pulse-summary-card {
+  border-left: 3px solid var(--accent-secondary);
+}
+
+.pulse-summary-card {
+  background: linear-gradient(180deg, rgba(62, 207, 207, 0.08), rgba(18, 18, 26, 0.94));
+}
+
+.insight-empty-state {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  color: var(--text-secondary);
 }
 
 .confidence-bar {
@@ -62,6 +96,47 @@
   background: linear-gradient(135deg, var(--gemini-start), var(--gemini-end));
   color: white; font-size: 12px; font-weight: 600;
 }
+
+.inline-icon {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.status-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.tool-header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.alarm-icon {
+  color: var(--accent-danger);
+}
+
+.onboard-icon {
+  color: var(--accent-secondary);
+}
+
+.lang-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-secondary);
+}
+
+.lang-icon-svg {
+  width: 16px;
+  height: 16px;
+}
+
 .gemini-badge-icon {
   display: inline-flex; align-items: center; justify-content: center;
   width: 24px; height: 24px; border-radius: 50%;
@@ -84,11 +159,97 @@
 .risk-badge.critical { 
   background: var(--accent-danger-soft); color: var(--accent-danger); 
 }
+.risk-badge.high,
+.risk-badge.medium,
 .risk-badge.moderate { 
   background: var(--accent-warning-soft); color: var(--accent-warning); 
 }
 .risk-badge.low { 
   background: var(--accent-success-soft); color: var(--accent-success); 
+}
+
+.meta-chip,
+.pulse-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.meta-chip.low,
+.meta-chip.fresh,
+.meta-chip.stable,
+.pulse-status.fresh,
+.pulse-status.stable {
+  color: var(--accent-success);
+  border-color: rgba(106, 247, 167, 0.25);
+  background: var(--accent-success-soft-2);
+}
+
+.meta-chip.medium,
+.meta-chip.moderate,
+.meta-chip.high,
+.meta-chip.warning,
+.meta-chip.aging,
+.pulse-status.aging {
+  color: var(--accent-warning);
+  border-color: rgba(247, 167, 106, 0.28);
+  background: var(--accent-warning-soft-2);
+}
+
+.meta-chip.critical,
+.meta-chip.danger,
+.meta-chip.inactive,
+.meta-chip.departed,
+.meta-chip.stale,
+.meta-chip.critical-reevaluation,
+.pulse-status.stale,
+.pulse-status.critical-reevaluation {
+  color: var(--accent-danger);
+  border-color: rgba(247, 106, 106, 0.28);
+  background: var(--accent-danger-soft-2);
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+
+.detail-block {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+}
+
+.detail-list {
+  list-style-type: disc;
+  padding-left: var(--space-4);
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.pulse-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+@media (max-width: 720px) {
+  .pulse-card-header {
+    flex-direction: column;
+  }
 }
 
 .repo-bar {
@@ -106,7 +267,6 @@
   gap: var(--space-3);
   flex-wrap: wrap;
 }
-.lang-icon { font-size: 14px; }
 .lang-codes {
   font-family: var(--font-mono);
   font-size: 12px;

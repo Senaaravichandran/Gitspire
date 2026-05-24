@@ -19,6 +19,32 @@
 </head>
 <body>
 
+<svg class="icon-sprite" aria-hidden="true" focusable="false">
+  <symbol id="icon-bolt" viewBox="0 0 24 24">
+    <path d="M13 2 6 13h5l-1 9 8-12h-5l0-8Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path>
+  </symbol>
+  <symbol id="icon-warning" viewBox="0 0 24 24">
+    <path d="M12 3.5 2.75 20h18.5L12 3.5Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path>
+    <path d="M12 9v4.75" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path>
+    <circle cx="12" cy="16.75" r="1" fill="currentColor"></circle>
+  </symbol>
+  <symbol id="icon-check" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.75"></circle>
+    <path d="m8.5 12.25 2.25 2.25 4.75-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path>
+  </symbol>
+  <symbol id="icon-danger" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.75"></circle>
+    <path d="m9 9 6 6M15 9l-6 6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path>
+  </symbol>
+  <symbol id="icon-globe" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.75"></circle>
+    <path d="M3.75 12h16.5M12 3.5c2.35 2.2 3.75 5.3 3.75 8.5S14.35 18.3 12 20.5M12 3.5C9.65 5.7 8.25 8.8 8.25 12s1.4 6.3 3.75 8.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+  </symbol>
+  <symbol id="icon-arrow-right" viewBox="0 0 24 24">
+    <path d="M5 12h13m-5.25-5.25L18 12l-5.25 5.25" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path>
+  </symbol>
+</svg>
+
 <header class="app-header">
   <div class="header-left">
     <div class="logo-area">
@@ -27,37 +53,91 @@
     </div>
   </div>
   <div class="header-right">
-    <span class="gemini-badge">Powered by Gemini 1.5 Pro</span>
+    <span class="gemini-badge" id="model-badge">Powered by Gemini</span>
   </div>
 </header>
 
 <div class="gemini-float" aria-hidden="true">
-  <div id="gemini-lottie" class="gemini-lottie" aria-label="Gemini animation"></div>
+  <div id="gemini-lottie" class="gemini-lottie" aria-label="GitSpire wave animation"></div>
 </div>
 
 <section id="hero" class="hero">
-  <h1 class="text-title">Your code remembers. Let it speak.</h1>
-  <p class="hero-tagline">Gitspire reconstructs the invisible why-layer of any 
-    GitHub repository using Gemini's long-context reasoning.</p>
-  <div class="url-input-container">
-    <input type="text" id="repo-url" 
-      placeholder="https://github.com/owner/repo" 
-      autocomplete="off" spellcheck="false" />
-    <button id="analyze-btn" class="btn-primary">
-      Analyze Repository
-    </button>
-  </div>
-  <div class="error-message hidden" id="hero-error"></div>
-  <div class="demo-repos">
-    <span class="text-label">Try:</span>
-    <button class="demo-pill" data-url="https://github.com/tiangolo/fastapi">fastapi</button>
-    <button class="demo-pill" data-url="https://github.com/pallets/flask">flask</button>
-    <button class="demo-pill" data-url="https://github.com/psf/requests">requests</button>
+  <div class="hero-shell">
+    <div class="hero-content">
+      <h1 class="text-title">Your code remembers. Let it speak.</h1>
+      <p class="hero-tagline">Gitspire reconstructs the invisible why-layer of any 
+        GitHub repository using Gemini's long-context reasoning.</p>
+      <div class="url-input-container">
+        <input type="text" id="repo-url" 
+          placeholder="https://github.com/owner/repo" 
+          autocomplete="off" spellcheck="false" />
+        <button id="analyze-btn" class="btn-primary">
+          Analyze Repository
+        </button>
+      </div>
+      <div class="error-message hidden" id="hero-error"></div>
+      <div class="demo-repos">
+        <span class="text-label">Try:</span>
+        <button class="demo-pill" data-url="https://github.com/tiangolo/fastapi">fastapi</button>
+        <button class="demo-pill" data-url="https://github.com/pallets/flask">flask</button>
+        <button class="demo-pill" data-url="https://github.com/psf/requests">requests</button>
+      </div>
+    </div>
+
+    <aside class="guard-panel" aria-label="GitSpire Guard feature preview">
+      <div class="guard-panel-header">
+        <span class="guard-eyebrow">Capability Preview</span>
+        <div class="guard-status-pill">
+          <span class="guard-status-dot"></span>
+          Live PR Protection
+        </div>
+      </div>
+
+      <div class="guard-title-block">
+        <h2 class="text-heading guard-title">
+          <svg class="inline-icon title-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-bolt"></use></svg>
+          GitSpire Guard
+        </h2>
+        <p class="guard-subtitle">Protect your repository&apos;s architectural DNA.</p>
+        <p class="guard-description">Automatic PR reviews compare new diffs against your repository&apos;s historical decisions, assumptions, and known failure patterns before risky changes land.</p>
+      </div>
+
+      <div class="guard-flow" aria-hidden="true">
+        <div class="guard-step">
+          <span class="guard-step-node">1</span>
+          <span>PR Opened</span>
+        </div>
+        <div class="guard-step-line"></div>
+        <div class="guard-step">
+          <span class="guard-step-node">2</span>
+          <span>Knowledge Core Loaded</span>
+        </div>
+        <div class="guard-step-line"></div>
+        <div class="guard-step">
+          <span class="guard-step-node">3</span>
+          <span>Gemini Reviews Diff</span>
+        </div>
+        <div class="guard-step-line"></div>
+        <div class="guard-step">
+          <span class="guard-step-node">4</span>
+          <span>Architectural Violations Detected</span>
+        </div>
+        <div class="guard-step-line"></div>
+        <div class="guard-step">
+          <span class="guard-step-node">5</span>
+          <span>PR Comment + Live Notification</span>
+        </div>
+      </div>
+
+      <div class="guard-verdict-card" id="guard-verdict-card">
+        <!-- Populated by JS: neutral pre-analysis state or a live repository verdict -->
+      </div>
+    </aside>
   </div>
 </section>
 
 <section id="progress-view" class="progress-view hidden">
-  <div class="progress-orb"></div>
+  <div id="progress-lottie" class="progress-lottie" aria-label="GitSpire loading animation"></div>
   <div class="progress-steps">
     <div class="step" id="step-fetch">
       <span class="step-indicator"></span>
@@ -102,6 +182,15 @@
     <button class="tab-btn ghost-tab" data-tab="ghosts">
       Ghost Decisions <span class="badge danger" id="badge-ghosts">0</span>
     </button>
+    <button class="tab-btn" data-tab="regrets">
+      Regretted Decisions <span class="badge" id="badge-regrets">0</span>
+    </button>
+    <button class="tab-btn" data-tab="orphans">
+      Orphaned Architecture <span class="badge" id="badge-orphans">0</span>
+    </button>
+    <button class="tab-btn" data-tab="pulse">
+      Decision Pulse <span class="badge" id="badge-pulse">0</span>
+    </button>
   </nav>
   
   <div class="tab-content">
@@ -109,6 +198,9 @@
     <div class="tab-panel hidden"  id="tab-assumptions"></div>
     <div class="tab-panel hidden"  id="tab-failures"></div>
     <div class="tab-panel hidden"  id="tab-ghosts"></div>
+    <div class="tab-panel hidden"  id="tab-regrets"></div>
+    <div class="tab-panel hidden"  id="tab-orphans"></div>
+    <div class="tab-panel hidden"  id="tab-pulse"></div>
   </div>
   
   <div class="tools-grid">
@@ -127,7 +219,9 @@
     
     <div class="tool-panel" id="alarm-panel">
       <div class="tool-header">
-        <span class="alarm-icon">⚠</span>
+        <span class="tool-header-icon alarm-icon" aria-hidden="true">
+          <svg class="inline-icon" focusable="false" viewBox="0 0 24 24"><use href="#icon-warning"></use></svg>
+        </span>
         <h3>Assumption Alarm</h3>
       </div>
       <p class="tool-description">Paste new code to check against 
@@ -141,7 +235,9 @@
     
     <div class="tool-panel" id="onboard-panel">
       <div class="tool-header">
-        <span class="onboard-icon">→</span>
+        <span class="tool-header-icon onboard-icon" aria-hidden="true">
+          <svg class="inline-icon" focusable="false" viewBox="0 0 24 24"><use href="#icon-arrow-right"></use></svg>
+        </span>
         <h3>Onboarding Path</h3>
       </div>
       <input type="text" id="onboard-input" 

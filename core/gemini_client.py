@@ -9,13 +9,15 @@ logger = logging.getLogger(__name__)
 from core.prompts import (PROMPT_ARCHAEOLOGY, PROMPT_WHY_QUERY, 
                            PROMPT_ASSUMPTION_ALARM, PROMPT_ONBOARDING)
 
+GEMINI_MODEL_NAME = "models/gemini-2.5-pro"
+GEMINI_MODEL_DISPLAY_NAME = "Gemini 2.5 Pro"
+
 class GeminiClient:
 
     def __init__(self):
         genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-        model_name = os.environ.get("GEMINI_MODEL", "models/gemini-2.5-pro")
         self.model = genai.GenerativeModel(
-            model_name=model_name,
+            model_name=GEMINI_MODEL_NAME,
             generation_config={
                 "temperature": 0.2,
                 "top_p": 0.8,

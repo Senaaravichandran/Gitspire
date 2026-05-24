@@ -86,6 +86,8 @@ FIREBASE_DATABASE_URL=https://YOUR_DB.firebaseio.com/
 FIREBASE_CREDENTIALS_PATH=./firebase-credentials.json
 GITHUB_TOKEN=optional_github_pat
 GEMINI_MODEL=models/gemini-2.5-pro
+FRONTEND_URL=http://localhost:8000
+BACKEND_URL=http://localhost:8000
 ```
 
 3) Run the server:
@@ -147,6 +149,12 @@ Security
 --------
 - Keep .env and firebase-credentials.json out of source control.
 - Do not expose private repos or tokens to the client; all calls go through /api.
+
+Deployment Notes
+----------------
+- Set `FRONTEND_URL` on the backend to your deployed frontend origin. Multiple origins can be provided as a comma-separated list.
+- Set `BACKEND_URL` on the backend to the public API origin when running behind a proxy or on a separate domain.
+- If these vars are absent, Gitspire falls back to localhost development URLs so local runs still work.
 
 License
 -------
