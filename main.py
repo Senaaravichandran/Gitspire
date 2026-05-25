@@ -18,8 +18,10 @@ from api.routes import analyze, query, alarm, onboard
 from core.firebase_client import FirebaseClient
 from core.gemini_client import GEMINI_MODEL_DISPLAY_NAME, GEMINI_MODEL_NAME
 
+DEPLOYED_BACKEND_URL = "https://gitspire-5q7m.onrender.com"
 DEFAULT_BACKEND_URL = "http://localhost:8000"
 DEFAULT_FRONTEND_ORIGINS = [
+    DEPLOYED_BACKEND_URL,
     "http://localhost:8000",
     "http://127.0.0.1:8000",
     "http://localhost:9000",

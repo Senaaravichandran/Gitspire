@@ -6,6 +6,8 @@ class APIError extends Error {
   }
 }
 
+const DEFAULT_API_BASE_URL = 'https://gitspire-5q7m.onrender.com';
+
 const ApiRuntime = {
   baseUrl: null,
   resolutionPromise: null,
@@ -44,6 +46,8 @@ const ApiRuntime = {
     const candidates = [];
     const configured = this.getConfiguredBaseUrl();
     if (configured) candidates.push(configured);
+
+    candidates.push(this.normalizeBaseUrl(DEFAULT_API_BASE_URL));
 
     if (window.location.origin && window.location.origin !== 'null') {
       candidates.push(this.normalizeBaseUrl(window.location.origin));
@@ -127,7 +131,7 @@ const API = {
       return await fetch(url, options);
     } catch (error) {
       throw new APIError(
-        'Unable to reach the GitSpire API. Start the FastAPI app on port 8000 or set ?apiBase=http://host:port.',
+        `Unable to reach the GitSpire API at ${ApiRuntime.baseUrl || DEFAULT_API_BASE_URL}. Set ?apiBase=http://host:port to override it.`,
         'NETWORK_ERROR',
         { detail: error.message, url }
       );
