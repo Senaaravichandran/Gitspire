@@ -17,7 +17,7 @@
 [![Firebase](https://img.shields.io/badge/Firebase-RTDB-FBBC04?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com)
 [![License](https://img.shields.io/badge/License-MIT-34A853?style=for-the-badge)](LICENSE)
 
-> **Built for Codesprint with Gemini — Google AI Hackathon 2025**
+> **Built for Codesprint with Gemini**
 > 
 > Team **DRAGORITHM** · Senaaravichandran A · Gowshik S
 
@@ -1050,7 +1050,7 @@ These rules are enforced throughout the codebase and must never be broken:
 
 ## Hackathon Context
 
-**Event:** Codesprint with Gemini — Google AI Hackathon 2025
+**Event:** Codesprint with Gemini 
 
 **Core Gemini Feature Demonstrated:**
 > Gemini 1.5 Pro's **1 million token long-context window** used to ingest an entire GitHub repository — commits, issues, PRs, file contents — in a single API call, with no RAG, no chunking, and no context loss. This is what makes GitSpire possible. No other approach would allow the full archaeological trace needed to extract WHY-layer insights from the complete artifact trail.
