@@ -17,6 +17,26 @@ const ApiRuntime = {
     return String(value).trim().replace(/\/+$/, '').replace(/\/api$/, '');
   },
 
+  getHostname(value) {
+    try {
+      return new URL(value).hostname.toLowerCase();
+    } catch (error) {
+      return '';
+    }
+  },
+
+  isLocalHostname(hostname) {
+    return ['localhost', '127.0.0.1', '0.0.0.0', '::1'].includes(String(hostname || '').toLowerCase());
+  },
+
+  isLocalBaseUrl(value) {
+    return this.isLocalHostname(this.getHostname(value));
+  },
+
+  isCurrentPageLocal() {
+    return this.isLocalHostname(window.location.hostname);
+  },
+
   formatHost(host) {
     if (!host) return '127.0.0.1';
     if (host.includes(':') && !host.startsWith('[')) return `[${host}]`;
@@ -36,10 +56,15 @@ const ApiRuntime = {
     if (fromWindow) return fromWindow;
 
     try {
-      return this.normalizeBaseUrl(window.localStorage.getItem('gitspire_api_base_url'));
+      const stored = this.normalizeBaseUrl(window.localStorage.getItem('gitspire_api_base_url'));
+      if (stored && (this.isCurrentPageLocal() || !this.isLocalBaseUrl(stored))) {
+        return stored;
+      }
     } catch (error) {
       return null;
     }
+
+    return null;
   },
 
   buildCandidateBaseUrls() {
@@ -47,10 +72,14 @@ const ApiRuntime = {
     const configured = this.getConfiguredBaseUrl();
     if (configured) candidates.push(configured);
 
-    candidates.push(this.normalizeBaseUrl(DEFAULT_API_BASE_URL));
-
     if (window.location.origin && window.location.origin !== 'null') {
       candidates.push(this.normalizeBaseUrl(window.location.origin));
+    }
+
+    candidates.push(this.normalizeBaseUrl(DEFAULT_API_BASE_URL));
+
+    if (!this.isCurrentPageLocal()) {
+      return [...new Set(candidates.filter(Boolean))];
     }
 
     const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
@@ -69,6 +98,14 @@ const ApiRuntime = {
     return [...new Set(candidates.filter(Boolean))];
   },
 
+  selectApiBaseUrl(metaApiBaseUrl, probedBaseUrl) {
+    if (!metaApiBaseUrl) return probedBaseUrl;
+    if (!this.isCurrentPageLocal() && this.isLocalBaseUrl(metaApiBaseUrl)) {
+      return probedBaseUrl;
+    }
+    return metaApiBaseUrl;
+  },
+
   async probe(baseUrl) {
     try {
       const response = await fetch(new URL('/api/meta', `${baseUrl}/`).toString(), {
@@ -83,8 +120,13 @@ const ApiRuntime = {
         meta = null;
       }
 
+      if (meta?.service !== 'gitspire') return null;
+
+      const probedBaseUrl = this.normalizeBaseUrl(baseUrl);
+      const metaApiBaseUrl = this.normalizeBaseUrl(meta?.api_base_url);
+
       return {
-        apiBaseUrl: this.normalizeBaseUrl(meta?.api_base_url) || this.normalizeBaseUrl(baseUrl),
+        apiBaseUrl: this.selectApiBaseUrl(metaApiBaseUrl, probedBaseUrl),
         frontendUrl: this.normalizeBaseUrl(meta?.frontend_url)
       };
     } catch (error) {

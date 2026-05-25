@@ -9,6 +9,7 @@ import base64
 import tempfile
 import logging
 from contextlib import asynccontextmanager
+from urllib.parse import urlparse
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -27,6 +28,7 @@ DEFAULT_FRONTEND_ORIGINS = [
     "http://localhost:9000",
     "http://127.0.0.1:9000",
 ]
+LOCAL_HOSTNAMES = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
 
 
 def normalize_url(value: str | None) -> str | None:
@@ -34,6 +36,29 @@ def normalize_url(value: str | None) -> str | None:
         return None
     normalized = str(value).strip().rstrip("/")
     return normalized or None
+
+
+def get_url_hostname(value: str | None) -> str:
+    if not value:
+        return ""
+    return (urlparse(value).hostname or "").lower()
+
+
+def is_local_url(value: str | None) -> bool:
+    return get_url_hostname(value) in LOCAL_HOSTNAMES
+
+
+def get_request_base_url(request: Request) -> str:
+    forwarded_host = request.headers.get("x-forwarded-host")
+    if forwarded_host:
+        forwarded_proto = request.headers.get("x-forwarded-proto", request.url.scheme)
+        scheme = forwarded_proto.split(",")[0].strip() or request.url.scheme
+        host = forwarded_host.split(",")[0].strip()
+        normalized = normalize_url(f"{scheme}://{host}")
+        if normalized:
+            return normalized
+
+    return str(request.base_url).rstrip("/")
 
 
 def get_env_urls(env_name: str) -> list[str]:
@@ -61,20 +86,15 @@ def get_primary_frontend_url() -> str:
 
 def get_backend_base_url(request: Request | None = None) -> str:
     configured = get_env_urls("BACKEND_URL")
+    request_base_url = get_request_base_url(request) if request is not None else None
+
     if configured:
+        if request_base_url and is_local_url(configured[0]) and not is_local_url(request_base_url):
+            return request_base_url
         return configured[0]
 
-    if request is not None:
-        forwarded_host = request.headers.get("x-forwarded-host")
-        if forwarded_host:
-            forwarded_proto = request.headers.get("x-forwarded-proto", request.url.scheme)
-            scheme = forwarded_proto.split(",")[0].strip() or request.url.scheme
-            host = forwarded_host.split(",")[0].strip()
-            normalized = normalize_url(f"{scheme}://{host}")
-            if normalized:
-                return normalized
-
-        return str(request.base_url).rstrip("/")
+    if request_base_url:
+        return request_base_url
 
     return DEFAULT_BACKEND_URL
 

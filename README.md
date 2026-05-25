@@ -153,8 +153,8 @@ Security
 Deployment Notes
 ----------------
 - Set `FRONTEND_URL` on the backend to your deployed frontend origin. Multiple origins can be provided as a comma-separated list.
-- The static frontend defaults API calls to `https://gitspire-5q7m.onrender.com`.
-- Set `BACKEND_URL=https://gitspire-5q7m.onrender.com` on Render if you want `/api/meta` to report the public API origin explicitly.
+- For a single Render service serving both frontend and backend, the browser calls the same origin first.
+- Do not set `BACKEND_URL` to localhost in Render. Leave it unset or set `BACKEND_URL=https://gitspire-5q7m.onrender.com`.
 - Local development URLs remain allowed by default, and the frontend can be overridden with `?apiBase=http://localhost:8000`.
 
 License
