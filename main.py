@@ -25,6 +25,7 @@ DEFAULT_FRONTEND_ORIGINS = [
     "http://localhost:9000",
     "http://127.0.0.1:9000",
 ]
+logger = logging.getLogger(__name__)
 
 
 def normalize_url(value: str | None) -> str | None:
@@ -101,6 +102,13 @@ async def disable_http_cache(request: Request, call_next):
     response = await call_next(request)
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    if request.url.scheme == "https" or request.headers.get("x-forwarded-proto", "").split(",")[0].strip() == "https":
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     return response
 
 app.add_middleware(
@@ -120,10 +128,10 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 
 @app.exception_handler(Exception)
 async def generic_exception_handler(request: Request, exc: Exception):
-    logging.error(f"Unhandled exception: {exc}", exc_info=True)
+    logger.error("Unhandled exception while processing %s", request.url.path, exc_info=exc)
     return JSONResponse(
         status_code=500,
-        content={"success": False, "error": str(exc), "error_code": "INTERNAL_ERROR"}
+        content={"success": False, "error": "An unexpected server error occurred", "error_code": "INTERNAL_ERROR"}
     )
 
 # Mount API routes
