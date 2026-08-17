@@ -1,41 +1,24 @@
 import importlib
 import os
 import sys
-import types
 import unittest
+from unittest.mock import patch, MagicMock
 
 
 def load_gemini_client_module():
-	google_module = sys.modules.get("google")
-	if google_module is None:
-		google_module = types.ModuleType("google")
-		google_module.__path__ = []
-		sys.modules["google"] = google_module
-
-	genai_module = types.ModuleType("google.generativeai")
-
-	def configure(**kwargs):
-		return kwargs
-
-	class GenerativeModel:
-		def __init__(self, *args, **kwargs):
-			self.args = args
-			self.kwargs = kwargs
-
-	genai_module.configure = configure
-	genai_module.GenerativeModel = GenerativeModel
-	sys.modules["google.generativeai"] = genai_module
-	setattr(google_module, "generativeai", genai_module)
-
-	module = importlib.import_module("core.gemini_client")
-	return importlib.reload(module)
+	# Mock the requests module's post method
+	with patch('requests.post'):
+		os.environ["NVIDIA_GEMINI_API_KEY"] = "test-key"
+		module = importlib.import_module("core.gemini_client")
+		return importlib.reload(module)
 
 
 class GeminiClientJsonParsingTests(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):
-		module = load_gemini_client_module()
+		os.environ["NVIDIA_GEMINI_API_KEY"] = "test-key"
+		module = importlib.import_module("core.gemini_client")
 		cls.client = module.GeminiClient.__new__(module.GeminiClient)
 
 	def test_safe_parse_json_accepts_markdown_fences(self):
@@ -52,12 +35,12 @@ class GeminiClientJsonParsingTests(unittest.TestCase):
 		self.assertTrue(parsed["parse_error"])
 		self.assertIn("not-json-at-all", parsed["raw_preview"])
 
-	def test_client_uses_backend_pinned_model_even_when_env_override_exists(self):
-		os.environ["GEMINI_API_KEY"] = "test-key"
-		os.environ["GEMINI_MODEL"] = "models/gemini-3.1-pro"
-		module = load_gemini_client_module()
-		client = module.GeminiClient()
-		self.assertEqual(client.model.kwargs["model_name"], module.GEMINI_MODEL_NAME)
+	def test_client_uses_nvidia_api_key(self):
+		os.environ["NVIDIA_GEMINI_API_KEY"] = "test-nvidia-key"
+		with patch('requests.post'):
+			module = importlib.import_module("core.gemini_client")
+			client = module.GeminiClient()
+			self.assertEqual(client.api_key, "test-nvidia-key")
 
 
 if __name__ == "__main__":

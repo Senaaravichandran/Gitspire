@@ -1,5 +1,11 @@
 import asyncio
-import httpx
+import importlib
+
+try:
+    httpx = importlib.import_module("httpx")
+except ImportError:
+    print("Error: httpx is not installed. Install it with: pip install httpx")
+    raise
 
 """Quick API smoke test for the current Gitspire response schema."""
 

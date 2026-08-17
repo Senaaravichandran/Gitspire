@@ -7,6 +7,7 @@ from firebase_admin import credentials, db
 class FirebaseClient:
 
     def __init__(self):
+        self.enabled = False
         if not firebase_admin._apps:
             cred_path = os.environ.get("FIREBASE_CREDENTIALS_PATH")
             if cred_path and os.path.exists(cred_path):
@@ -14,10 +15,13 @@ class FirebaseClient:
                 firebase_admin.initialize_app(cred, {
                     "databaseURL": os.environ.get("FIREBASE_DATABASE_URL", "")
                 })
+                self.enabled = True
             else:
                 # If credentials path is not provided or file doesn't exist, we skip init.
                 # In production, this might crash if it's required.
                 print("Warning: Firebase credentials not found, DB calls will fail.")
+        else:
+            self.enabled = True
 
     def _repo_key(self, repo_url: str) -> str:
         # SHA256 hash of URL → first 16 hex chars
@@ -25,6 +29,8 @@ class FirebaseClient:
         return hashlib.sha256(repo_url.encode()).hexdigest()[:16]
 
     async def get_knowledge_core(self, repo_url: str) -> dict | None:
+        if not self.enabled:
+            return None
         try:
             key = self._repo_key(repo_url)
             ref = db.reference(f'/knowledge_cores/{key}')
@@ -55,6 +61,8 @@ class FirebaseClient:
             return None
 
     async def save_knowledge_core(self, repo_url: str, knowledge_core: dict):
+        if not self.enabled:
+            return
         try:
             key = self._repo_key(repo_url)
             knowledge_core["analyzed_at"] = datetime.now(timezone.utc).isoformat()
@@ -65,6 +73,8 @@ class FirebaseClient:
             print(f"Error saving to Firebase: {e}")
 
     async def get_cached_query(self, repo_url: str, question_hash: str) -> dict | None:
+        if not self.enabled:
+            return None
         try:
             repo_key = self._repo_key(repo_url)
             ref = db.reference(f'/query_cache/{repo_key}/{question_hash}')
@@ -74,6 +84,8 @@ class FirebaseClient:
             return None
 
     async def save_query_cache(self, repo_url: str, question_hash: str, response: dict):
+        if not self.enabled:
+            return
         try:
             repo_key = self._repo_key(repo_url)
             ref = db.reference(f'/query_cache/{repo_key}/{question_hash}')

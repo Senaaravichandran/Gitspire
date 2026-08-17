@@ -43,7 +43,7 @@ class GitHubClient:
             return None
 
     async def fetch_repository_bundle(self, owner: str, repo: str) -> dict:
-        async with httpx.AsyncClient(headers=self.headers, base_url=self.BASE_URL) as client:
+        async with httpx.AsyncClient(headers=self.headers, base_url=self.BASE_URL, timeout=20.0) as client:
             metadata_task = self.fetch_metadata(client, owner, repo)
             commits_task = self.fetch_commits(client, owner, repo)
             issues_task = self.fetch_issues(client, owner, repo)
@@ -233,7 +233,7 @@ class GitHubClient:
         return key_files
 
     def build_archaeology_context(self, bundle: dict) -> tuple[str, dict]:
-        HARD_LIMIT = 800000
+        HARD_LIMIT = 60000
 
         translation_stats = {
             "languages_detected": [],
@@ -255,6 +255,24 @@ class GitHubClient:
 
         issues = list(bundle.get("issues", []))
         prs = list(bundle.get("pull_requests", []))
+
+        # Hard caps to keep analysis fast on large repos
+        MAX_COMMITS = 60
+        MAX_ISSUES = 20
+        MAX_PRS = 20
+        MAX_BODY_CHARS = 400
+
+        commits = commits[-MAX_COMMITS:]
+        issues = issues[:MAX_ISSUES]
+        prs = prs[:MAX_PRS]
+
+        for issue in issues:
+            if issue.get("body"):
+                issue["body"] = issue["body"][:MAX_BODY_CHARS]
+
+        for pr in prs:
+            if pr.get("body"):
+                pr["body"] = pr["body"][:MAX_BODY_CHARS]
 
         def build_context_text(commits_list, issues_list, prs_list) -> str:
             commit_lines = []

@@ -19,6 +19,6 @@ async def precache(repo_url):
 repos = [
   "https://github.com/psf/requests",
   "https://github.com/pallets/flask",
-  "https://github.com/tiangolo/fastapi",
+  "https://github.com/fastapi/full-stack-fastapi-template",
 ]
 asyncio.run(asyncio.gather(*[precache(r) for r in repos]))

@@ -62,7 +62,7 @@ class PulseDecision(BaseModel):
     assumption_validity: str
     reevaluation_needed: bool
     risk_summary: str
-    supporting_signals: list[str]
+    supporting_signals: list[str] = Field(default_factory=list)
     confidence_score: float
 
 class PulseOverallSummary(BaseModel):
@@ -81,8 +81,8 @@ class KnowledgeCore(BaseModel):
     analyzed_at: str      # ISO timestamp
     decision_atoms: list[DecisionAtom]
     assumptions: list[Assumption]
-    failure_memory: list[FailureRecord]
-    ghost_decisions: list[GhostDecision]
+    failure_memory: list[FailureRecord] = Field(default_factory=list)
+    ghost_decisions: list[GhostDecision] = Field(default_factory=list)
     regretted_decisions: list[RegrettedDecision] = []
     orphaned_architecture: list[OrphanedArchitecture] = []
     pulse_report: PulseReport | None = None

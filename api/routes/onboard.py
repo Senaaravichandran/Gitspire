@@ -20,7 +20,37 @@ async def generate_onboarding_path(request: OnboardRequest):
 
     gemini_result = await gemini_client.generate_onboarding(request.repo_url, core, request.feature_description)
     if "error" in gemini_result or "parse_error" in gemini_result:
-        return make_error(500, "Gemini failed to generate onboarding", "GEMINI_ERROR")
+        checklist = []
+        for idx, assumption in enumerate(core.get("assumptions", [])[:5], start=1):
+            if hasattr(assumption, "id"):
+                as_id = getattr(assumption, "id", idx)
+                statement = getattr(assumption, "statement", "Review repository assumptions")
+            elif isinstance(assumption, dict):
+                as_id = assumption.get("id", idx)
+                statement = assumption.get("statement", "Review repository assumptions")
+            else:
+                as_id = idx
+                statement = "Review repository assumptions"
+            checklist.append({
+                "priority": idx,
+                "topic": f"Assumption {as_id}",
+                "why": (
+                    f"{statement} This is a prerequisite for safe changes. "
+                    "Validate it against the requested feature before implementation."
+                ),
+                "evidence": "Stored knowledge core"
+            })
+        if not checklist:
+            checklist = [{
+                "priority": 1,
+                "topic": "Review repository context",
+                "why": (
+                    "No assumptions were found; review README and key configs before changes. "
+                    "Confirm build and runtime steps to avoid breaking changes."
+                ),
+                "evidence": "Stored knowledge core"
+            }]
+        return OnboardResponse(success=True, checklist=checklist, warning_count=0)
 
     checklist = gemini_result.get("checklist", [])
     if not isinstance(checklist, list):

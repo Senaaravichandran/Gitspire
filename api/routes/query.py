@@ -5,6 +5,7 @@ from api.models.requests import QueryRequest
 from api.models.responses import QueryResponse
 from core.gemini_client import GeminiClient
 from core.firebase_client import FirebaseClient
+from core.parser import build_fallback_analysis
 
 router = APIRouter()
 gemini_client = GeminiClient()
@@ -29,12 +30,26 @@ async def query_repository(request: QueryRequest):
 
     gemini_result = await gemini_client.answer_query(request.repo_url, core, request.question)
     if "error" in gemini_result or "parse_error" in gemini_result:
-        return make_error(500, "Gemini failed to answer query", "GEMINI_ERROR")
+        summary = str(core.get("summary", "No summary available."))
+        decisions = core.get("decision_atoms", [])
+        decision_text = "\n".join([f"- {d.get('decision', '')}" for d in decisions[:5] if isinstance(d, dict)])
+        assumptions = core.get("assumptions", [])
+        assumption_text = "\n".join([f"- {a.get('statement', '')}" for a in assumptions[:5] if isinstance(a, dict)])
+        answer = "Response:\n"
+        answer += f"Summary:\n{summary}\n"
+        if decision_text:
+            answer += f"Key decisions:\n{decision_text}\n"
+        if assumption_text:
+            answer += f"Key assumptions:\n{assumption_text}\n"
+        response = QueryResponse(success=True, answer=answer, citations=[], confidence="low")
+        await firebase_client.save_query_cache(request.repo_url, q_hash, response.model_dump())
+        return response
 
     answer = str(gemini_result.get("answer", "No answer provided."))
     citations = gemini_result.get("citations", [])
     if not isinstance(citations, list):
         citations = []
+    citations = [str(c) for c in citations if isinstance(c, (str, int, float))]
     confidence = str(gemini_result.get("confidence", "low"))
 
     response = QueryResponse(success=True, answer=answer, citations=citations, confidence=confidence)

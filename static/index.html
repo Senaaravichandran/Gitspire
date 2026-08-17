@@ -47,12 +47,39 @@
 
 <header class="app-header">
   <div class="header-left">
-    <div class="logo-area">
-      <span class="wordmark">Gitspire</span>
-      <span class="tagline">Repository Archaeology</span>
+    <div class="logo-area" style="flex-direction: row; align-items: center; gap: var(--space-3);">
+      <div style="background: rgba(124, 106, 247, 0.15); padding: 6px; border-radius: 8px; border: 1px solid var(--border-medium); display: flex;">
+        <svg class="inline-icon" style="color: var(--accent-primary); width: 20px; height: 20px;" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-bolt"></use></svg>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 2px;">
+        <span class="wordmark" style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 20px;">Gitspire</span>
+        <span class="tagline" style="color: var(--text-code); font-weight: 500; font-size: 11px;">Repository Archaeology</span>
+      </div>
     </div>
   </div>
   <div class="header-right">
+    <style>
+      .superb-ppt-btn {
+        display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500;
+        padding: 8px 20px; border-radius: 999px; color: #fff; text-decoration: none;
+        background: linear-gradient(135deg, rgba(247, 167, 106, 0.15), rgba(247, 106, 106, 0.2));
+        border: 1px solid rgba(247, 106, 106, 0.5);
+        box-shadow: 0 4px 15px rgba(247, 106, 106, 0.15);
+        transition: all 0.3s ease;
+      }
+      .superb-ppt-btn:hover {
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, rgba(247, 167, 106, 0.25), rgba(247, 106, 106, 0.3));
+        border-color: rgba(247, 167, 106, 0.8);
+        box-shadow: 0 8px 25px rgba(247, 106, 106, 0.3);
+      }
+    </style>
+    <a class="superb-ppt-btn" href="https://incomparable-cranachan-a67ea5.netlify.app/" target="_blank" rel="noopener noreferrer">
+      <span style="display: flex; align-items: center; justify-content: center; background: rgba(247, 167, 106, 0.2); border-radius: 50%; padding: 4px;">
+        <svg class="inline-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" style="color: var(--accent-warning); width: 14px; height: 14px;"><use href="#icon-arrow-right"></use></svg>
+      </span>
+      Click here for the PPT presentation
+    </a>
     <span class="gemini-badge" id="model-badge">Powered by Gemini</span>
   </div>
 </header>
@@ -78,7 +105,7 @@
       <div class="error-message hidden" id="hero-error"></div>
       <div class="demo-repos">
         <span class="text-label">Try:</span>
-        <button class="demo-pill" data-url="https://github.com/tiangolo/fastapi">fastapi</button>
+        <button class="demo-pill" data-url="https://github.com/fastapi/full-stack-fastapi-template">fastapi</button>
         <button class="demo-pill" data-url="https://github.com/pallets/flask">flask</button>
         <button class="demo-pill" data-url="https://github.com/psf/requests">requests</button>
       </div>
@@ -137,7 +164,7 @@
 </section>
 
 <section id="progress-view" class="progress-view hidden">
-  <div id="progress-lottie" class="progress-lottie" aria-label="GitSpire loading animation"></div>
+  <div id="progress-lottie" class="progress-lottie" aria-label="GitSpire loading animation" data-lottie-src="/wave.json"></div>
   <div class="progress-steps">
     <div class="step" id="step-fetch">
       <span class="step-indicator"></span>
@@ -156,7 +183,8 @@
       Persisting to knowledge core...
     </div>
   </div>
-  <p class="progress-hint">This takes 30–90 seconds for large repositories.</p>
+  <br>
+  <p class="progress-hint">This takes 30 - 90 seconds for large repositories.</p>
 </section>
 
 <section id="knowledge-core" class="knowledge-core hidden">
@@ -249,6 +277,9 @@
   </div>
 </section>
 
+<script>
+  window.GITSPIRE_API_BASE_URL = 'https://gitspire-pvt.onrender.com';
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
 <script src="/js/api.js"></script>

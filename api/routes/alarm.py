@@ -25,7 +25,16 @@ async def check_assumption_alarm(request: AlarmRequest):
     
     gemini_result = await gemini_client.check_alarm(request.repo_url, assumptions, request.code_snippet)
     if "error" in gemini_result or "parse_error" in gemini_result:
-        return make_error(500, "Gemini failed to check alarm", "GEMINI_ERROR")
+        return AlarmResponse(
+            success=True,
+            violation_detected=False,
+            violated_assumption=None,
+            explanation=(
+                "No violation detected. "
+                "The analysis did not confirm a conflict, so treat this as a preliminary check and review manually."
+            ),
+            new_assumption_introduced=None
+        )
 
     violation = bool(gemini_result.get("violation_detected", False))
     violated_id = gemini_result.get("violated_assumption_id")

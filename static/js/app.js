@@ -9,7 +9,16 @@ window._currentRepo = null;
 const initializedLottieContainers = new Set();
 let loadingAnimationDataPromise = null;
 
-async function getLoadingAnimationData() {
+async function getLoadingAnimationData(urlOverride) {
+  if (urlOverride) {
+    try {
+      const res = await fetch(urlOverride);
+      if (res.ok) return await res.json();
+    } catch (error) {
+      return null;
+    }
+  }
+
   if (loadingAnimationDataPromise) return loadingAnimationDataPromise;
 
   loadingAnimationDataPromise = (async () => {
@@ -41,7 +50,7 @@ async function initLoadingLottie(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  const animationData = await getLoadingAnimationData();
+  const animationData = await getLoadingAnimationData(container.dataset.lottieSrc);
   if (!animationData) return;
 
   const animationPayload = typeof structuredClone === 'function'
@@ -247,6 +256,9 @@ document.getElementById('analyze-btn').addEventListener('click', async () => {
           if(tel) tel.parentElement.textContent = "Rate limit cleared. You can try again.";
         }
       }, 1000);
+    } else if (e.code === 'TIMEOUT' || e.code === 'GITHUB_TIMEOUT' || e.code === 'GEMINI_TIMEOUT') {
+      errorEl.textContent = 'The analysis took too long and timed out. Try a smaller repo or retry.';
+      errorEl.classList.remove('hidden');
     } else if (e.code === 'GEMINI_ERROR') {
       errorEl.textContent = "Gemini API timeout. This repo may be too large. Try psf/requests or pallets/flask.";
       errorEl.classList.remove('hidden');
