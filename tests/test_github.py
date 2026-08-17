@@ -29,6 +29,14 @@ class GitHubClientTests(unittest.TestCase):
 		with self.assertRaises(ValueError):
 			self.client.parse_repo_url("https://example.com/octocat/Hello-World")
 
+	def test_parse_repo_url_rejects_extra_path_segments(self):
+		with self.assertRaises(ValueError):
+			self.client.parse_repo_url("https://github.com/octocat/Hello-World/issues")
+
+	def test_parse_repo_url_rejects_query_parameters(self):
+		with self.assertRaises(ValueError):
+			self.client.parse_repo_url("https://github.com/octocat/Hello-World?tab=readme")
+
 	def test_build_archaeology_context_tracks_languages_and_reorders_commits(self):
 		context, stats = self.client.build_archaeology_context(
 			{

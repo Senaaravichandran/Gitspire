@@ -4,6 +4,7 @@ from api.models.requests import AlarmRequest
 from api.models.responses import AlarmResponse, Assumption
 from core.gemini_client import GeminiClient
 from core.firebase_client import FirebaseClient
+from core.repository_url import normalize_github_repo_url
 
 router = APIRouter()
 gemini_client = GeminiClient()
@@ -14,16 +15,20 @@ def make_error(status_code: int, error: str, error_code: str):
 
 @router.post("/alarm", response_model=AlarmResponse)
 async def check_assumption_alarm(request: AlarmRequest):
+    try:
+        repo_url = normalize_github_repo_url(request.repo_url)
+    except ValueError as exc:
+        return make_error(400, str(exc), "INVALID_URL")
     if len(request.code_snippet) > 10000:
         return make_error(400, "Code snippet exceeds max 10,000 characters", "BAD_REQUEST")
 
-    core = await firebase_client.get_knowledge_core(request.repo_url)
+    core = await firebase_client.get_knowledge_core(repo_url)
     if not core:
         return make_error(404, "Analyze this repository first", "NOT_ANALYZED")
 
     assumptions = core.get("assumptions", [])
     
-    gemini_result = await gemini_client.check_alarm(request.repo_url, assumptions, request.code_snippet)
+    gemini_result = await gemini_client.check_alarm(repo_url, assumptions, request.code_snippet)
     if "error" in gemini_result or "parse_error" in gemini_result:
         return AlarmResponse(
             success=True,

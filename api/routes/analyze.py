@@ -1,5 +1,4 @@
 import asyncio
-import re
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from api.models.requests import AnalyzeRequest
@@ -9,6 +8,7 @@ from core.gemini_client import GeminiClient
 from core.firebase_client import FirebaseClient
 from core.parser import parse_knowledge_core, build_fallback_analysis
 from core.rate_limiter import analyze_rate_limiter
+from core.repository_url import normalize_github_repo_url
 
 router = APIRouter()
 github_client = GitHubClient()
@@ -35,10 +35,11 @@ def make_error(status_code: int, error: str, error_code: str):
 
 @router.post("/analyze", response_model=AnalyzeResponse)
 async def analyze_repository(request: AnalyzeRequest, req: Request):
-    # 1. Validate repo_url security via regex
-    url = request.repo_url
-    if not re.match(r'^https://github\.com/[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+/?$', url):
-        return make_error(400, "Invalid GitHub URL format", "INVALID_URL")
+    # 1. Validate and canonicalize the repository URL.
+    try:
+        url = normalize_github_repo_url(request.repo_url)
+    except ValueError as exc:
+        return make_error(400, str(exc), "INVALID_URL")
     
     # 2. Check rate limit
     client_ip = req.client.host if req.client and req.client.host else "unknown"

@@ -2,9 +2,9 @@ import httpx
 import os
 import asyncio
 import base64
-import urllib.parse
 from typing import Dict, List, Tuple
 from core.translation import TranslationService, update_language_stats
+from core.repository_url import parse_github_repo_url
 
 class GitHubClient:
     BASE_URL = "https://api.github.com"
@@ -18,20 +18,7 @@ class GitHubClient:
             
     def parse_repo_url(self, url: str) -> Tuple[str, str]:
         # Parse "https://github.com/owner/repo" → ("owner", "repo")
-        parsed = urllib.parse.urlparse(url)
-        if parsed.netloc and parsed.netloc not in {"github.com", "www.github.com"}:
-            raise ValueError(f"Unrecognized GitHub URL host: {parsed.netloc}")
-
-        path = parsed.path.strip("/")
-        if path.endswith(".git"):
-            path = path[:-4]
-
-        parts = [p for p in path.split("/") if p]
-        if len(parts) < 2:
-            raise ValueError(f"Unrecognized GitHub URL format: {url}. Expected format: https://github.com/owner/repo")
-
-        owner, repo = parts[0], parts[1]
-        return owner, repo
+        return parse_github_repo_url(url)
 
     async def _get(self, client: httpx.AsyncClient, url: str, params: dict = None) -> httpx.Response:
         try:

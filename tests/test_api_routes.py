@@ -187,6 +187,20 @@ class ApiRouteTests(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["error_code"], "INVALID_URL")
 
+    def test_analyze_endpoint_canonicalizes_git_url(self):
+        cached_core = sample_knowledge_core_dict()
+        with (
+            patch.object(analyze.analyze_rate_limiter, "is_allowed", return_value=True),
+            patch.object(analyze.firebase_client, "get_knowledge_core", new=AsyncMock(return_value=cached_core)) as get_core,
+        ):
+            response = self.client.post(
+                "/api/analyze",
+                json={"repo_url": "https://www.github.com/example/repo.git/", "force_refresh": False},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        get_core.assert_awaited_once_with("https://github.com/example/repo")
+
     def test_analyze_endpoint_accepts_legacy_cached_assumptions_without_depends_on(self):
         legacy_cached_core = sample_knowledge_core_dict()
         legacy_cached_core["assumptions"] = [
