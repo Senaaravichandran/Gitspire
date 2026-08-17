@@ -41,7 +41,7 @@ async def check_assumption_alarm(request: AlarmRequest):
             new_assumption_introduced=None
         )
 
-    violation = bool(gemini_result.get("violation_detected", False))
+    violation = gemini_result.get("violation_detected") is True
     violated_id = gemini_result.get("violated_assumption_id")
     explanation = str(gemini_result.get("explanation", ""))
     new_assumption = gemini_result.get("new_assumption_introduced")

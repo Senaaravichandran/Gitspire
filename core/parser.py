@@ -4,6 +4,22 @@ from api.models.responses import (KnowledgeCore, DecisionAtom, Assumption,
                                     PulseReport, PulseOverallSummary, PulseDecision)
 from datetime import datetime, timezone
 
+
+def _bounded_float(value, default: float = 0.5, minimum: float = 0.0, maximum: float = 1.0) -> float:
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        parsed = default
+    return max(minimum, min(maximum, parsed))
+
+
+def _bounded_int(value, default: int = 0, minimum: int = 0, maximum: int = 100) -> int:
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        parsed = default
+    return max(minimum, min(maximum, parsed))
+
 def build_fallback_analysis(repo_url: str, bundle: dict, translation_metadata: dict | None = None) -> KnowledgeCore:
     metadata = bundle.get("metadata", {}) if isinstance(bundle, dict) else {}
     key_files = bundle.get("key_files", {}) if isinstance(bundle, dict) else {}
@@ -289,7 +305,7 @@ def parse_knowledge_core(repo_url: str, gemini_response: dict, translation_metad
             decision=str(da.get("decision", "Unknown decision")),
             reasoning=str(da.get("reasoning", "No reasoning provided")),
             evidence=da.get("evidence", []) if isinstance(da.get("evidence"), list) else [],
-            confidence=float(da.get("confidence", 0.5)),
+            confidence=_bounded_float(da.get("confidence")),
             translated_source=da.get("translated_source"),
             source_language=da.get("source_language"),
             original_excerpt=da.get("original_excerpt"),
@@ -342,7 +358,7 @@ def parse_knowledge_core(repo_url: str, gemini_response: dict, translation_metad
             emotional_evidence=str(rd.get("emotional_evidence", "")),
             architectural_consequences=str(rd.get("architectural_consequences", "")),
             current_risk_level=str(rd.get("current_risk_level", "low")),
-            confidence_score=float(rd.get("confidence_score", 0.5))
+            confidence_score=_bounded_float(rd.get("confidence_score"))
         ))
 
     orphaned_architecture = []
@@ -360,7 +376,7 @@ def parse_knowledge_core(repo_url: str, gemini_response: dict, translation_metad
             why_dangerous=str(oa.get("why_dangerous", "")),
             hidden_assumptions=oa.get("hidden_assumptions", []) if isinstance(oa.get("hidden_assumptions"), list) else [],
             suggested_stabilization_steps=oa.get("suggested_stabilization_steps", []) if isinstance(oa.get("suggested_stabilization_steps"), list) else [],
-            confidence_score=float(oa.get("confidence_score", 0.5))
+            confidence_score=_bounded_float(oa.get("confidence_score"))
         ))
 
     pulse_report = None
@@ -370,10 +386,10 @@ def parse_knowledge_core(repo_url: str, gemini_response: dict, translation_metad
             decisions_raw = pulse_report_raw.get("decisions", [])
             if isinstance(overall_raw, dict) and isinstance(decisions_raw, list):
                 overall_summary = PulseOverallSummary(
-                    overall_freshness_score=int(overall_raw.get("overall_freshness_score", 0)),
-                    aging_decision_count=int(overall_raw.get("aging_decision_count", 0)),
-                    stale_decision_count=int(overall_raw.get("stale_decision_count", 0)),
-                    critical_decision_count=int(overall_raw.get("critical_decision_count", 0)),
+                    overall_freshness_score=_bounded_int(overall_raw.get("overall_freshness_score")),
+                    aging_decision_count=_bounded_int(overall_raw.get("aging_decision_count"), maximum=10000),
+                    stale_decision_count=_bounded_int(overall_raw.get("stale_decision_count"), maximum=10000),
+                    critical_decision_count=_bounded_int(overall_raw.get("critical_decision_count"), maximum=10000),
                     summary=str(overall_raw.get("summary", ""))
                 )
 
@@ -385,7 +401,7 @@ def parse_knowledge_core(repo_url: str, gemini_response: dict, translation_metad
                         decision_id=str(pd.get("decision_id", "")),
                         decision_title=str(pd.get("decision_title", "")),
                         status=str(pd.get("status", "STABLE")),
-                        freshness_score=int(pd.get("freshness_score", 0)),
+                        freshness_score=_bounded_int(pd.get("freshness_score")),
                         original_reasoning=str(pd.get("original_reasoning", "")),
                         what_changed=str(pd.get("what_changed", "")),
                         current_ecosystem_state=str(pd.get("current_ecosystem_state", "")),
@@ -394,7 +410,7 @@ def parse_knowledge_core(repo_url: str, gemini_response: dict, translation_metad
                         reevaluation_needed=bool(pd.get("reevaluation_needed", False)),
                         risk_summary=str(pd.get("risk_summary", "")),
                         supporting_signals=pd.get("supporting_signals", []) if isinstance(pd.get("supporting_signals"), list) else [],
-                        confidence_score=float(pd.get("confidence_score", 0.5))
+                        confidence_score=_bounded_float(pd.get("confidence_score"))
                     ))
 
                 pulse_report = PulseReport(

@@ -55,7 +55,9 @@ async def query_repository(request: QueryRequest):
     if not isinstance(citations, list):
         citations = []
     citations = [str(c) for c in citations if isinstance(c, (str, int, float))]
-    confidence = str(gemini_result.get("confidence", "low"))
+    confidence = str(gemini_result.get("confidence", "low")).strip().lower()
+    if confidence not in {"high", "medium", "low"}:
+        confidence = "low"
 
     response = QueryResponse(success=True, answer=answer, citations=citations, confidence=confidence)
     await firebase_client.save_query_cache(repo_url, q_hash, response.model_dump())

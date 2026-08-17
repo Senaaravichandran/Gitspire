@@ -5,7 +5,7 @@ class DecisionAtom(BaseModel):
     decision: str
     reasoning: str
     evidence: list[str]   # format: "commit:abc1234", "issue:#42", "pr:#7"
-    confidence: float     # 0.0 to 1.0
+    confidence: float = Field(ge=0.0, le=1.0)
     translated_source: bool | None = None
     source_language: str | None = None
     original_excerpt: str | None = None
@@ -35,7 +35,7 @@ class RegrettedDecision(BaseModel):
     emotional_evidence: str
     architectural_consequences: str
     current_risk_level: str   # "low" | "medium" | "high" | "critical"
-    confidence_score: float
+    confidence_score: float = Field(ge=0.0, le=1.0)
 
 class OrphanedArchitecture(BaseModel):
     decision_title: str
@@ -48,13 +48,13 @@ class OrphanedArchitecture(BaseModel):
     why_dangerous: str
     hidden_assumptions: list[str]
     suggested_stabilization_steps: list[str]
-    confidence_score: float
+    confidence_score: float = Field(ge=0.0, le=1.0)
 
 class PulseDecision(BaseModel):
     decision_id: str
     decision_title: str
     status: str               # "FRESH" | "STABLE" | "AGING" | "STALE" | "CRITICAL_REEVALUATION"
-    freshness_score: int
+    freshness_score: int = Field(ge=0, le=100)
     original_reasoning: str
     what_changed: str
     current_ecosystem_state: str
@@ -63,13 +63,13 @@ class PulseDecision(BaseModel):
     reevaluation_needed: bool
     risk_summary: str
     supporting_signals: list[str] = Field(default_factory=list)
-    confidence_score: float
+    confidence_score: float = Field(ge=0.0, le=1.0)
 
 class PulseOverallSummary(BaseModel):
-    overall_freshness_score: int
-    aging_decision_count: int
-    stale_decision_count: int
-    critical_decision_count: int
+    overall_freshness_score: int = Field(ge=0, le=100)
+    aging_decision_count: int = Field(ge=0)
+    stale_decision_count: int = Field(ge=0)
+    critical_decision_count: int = Field(ge=0)
     summary: str
 
 class PulseReport(BaseModel):
@@ -83,12 +83,12 @@ class KnowledgeCore(BaseModel):
     assumptions: list[Assumption]
     failure_memory: list[FailureRecord] = Field(default_factory=list)
     ghost_decisions: list[GhostDecision] = Field(default_factory=list)
-    regretted_decisions: list[RegrettedDecision] = []
-    orphaned_architecture: list[OrphanedArchitecture] = []
+    regretted_decisions: list[RegrettedDecision] = Field(default_factory=list)
+    orphaned_architecture: list[OrphanedArchitecture] = Field(default_factory=list)
     pulse_report: PulseReport | None = None
-    languages_detected: list[str] = []
+    languages_detected: list[str] = Field(default_factory=list)
     translated_artifact_count: int = 0
-    language_distribution: dict = {}
+    language_distribution: dict = Field(default_factory=dict)
     translation_enabled: bool = False
     summary: str          # 2-3 sentence plain English summary
 

@@ -62,7 +62,10 @@ async def generate_onboarding_path(request: OnboardRequest):
     if not isinstance(checklist, list):
         checklist = []
         
-    warning_count = int(gemini_result.get("warning_count", 0))
+    try:
+        warning_count = max(0, int(gemini_result.get("warning_count", 0)))
+    except (TypeError, ValueError):
+        warning_count = 0
 
     return OnboardResponse(
         success=True,

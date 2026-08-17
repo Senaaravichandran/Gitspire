@@ -141,6 +141,27 @@ class ParseKnowledgeCoreTests(unittest.TestCase):
 		self.assertEqual(core.orphaned_architecture[0].decision_title, "Legacy cron")
 		self.assertIsNone(core.pulse_report)
 
+	def test_clamps_invalid_model_scores(self):
+		core = parse_knowledge_core(
+			"https://github.com/example/repo",
+			{
+				"summary": "Score hardening.",
+				"decision_atoms": [
+					{
+						"decision": "Use queues",
+						"reasoning": "Protect latency",
+						"confidence": "not-a-number",
+					}
+				],
+				"regretted_decisions": [
+					{"title": "Legacy queue", "confidence_score": 9}
+				],
+			},
+		)
+
+		self.assertEqual(core.decision_atoms[0].confidence, 0.5)
+		self.assertEqual(core.regretted_decisions[0].confidence_score, 1.0)
+
 
 if __name__ == "__main__":
 	unittest.main()
