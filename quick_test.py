@@ -25,7 +25,7 @@ async def test_api():
     
     # Test 2: Analyze endpoint (small repo)
     print("2️⃣ Testing analyze endpoint...")
-    print("   (This may take 10-30 seconds for Gemini analysis...)")
+    print("   (This may take 10-30 seconds for AI analysis...)")
     async with httpx.AsyncClient(timeout=60.0) as client:
         response = await client.post(
             f"{base_url}/api/analyze",

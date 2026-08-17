@@ -6,9 +6,8 @@ from unittest.mock import patch, MagicMock
 
 
 def load_gemini_client_module():
-	# Mock the requests module's post method
-	with patch('requests.post'):
-		os.environ["NVIDIA_GEMINI_API_KEY"] = "test-key"
+	with patch('httpx.AsyncClient.post'):
+		os.environ["MISTRAL"] = "test-key"
 		module = importlib.import_module("core.gemini_client")
 		return importlib.reload(module)
 
@@ -17,7 +16,7 @@ class GeminiClientJsonParsingTests(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):
-		os.environ["NVIDIA_GEMINI_API_KEY"] = "test-key"
+		os.environ["MISTRAL"] = "test-key"
 		module = importlib.import_module("core.gemini_client")
 		cls.client = module.GeminiClient.__new__(module.GeminiClient)
 
@@ -35,12 +34,12 @@ class GeminiClientJsonParsingTests(unittest.TestCase):
 		self.assertTrue(parsed["parse_error"])
 		self.assertIn("not-json-at-all", parsed["raw_preview"])
 
-	def test_client_uses_nvidia_api_key(self):
-		os.environ["NVIDIA_GEMINI_API_KEY"] = "test-nvidia-key"
-		with patch('requests.post'):
+	def test_client_uses_mistral_api_key(self):
+		os.environ["MISTRAL"] = "test-mistral-key"
+		with patch('httpx.AsyncClient.post'):
 			module = importlib.import_module("core.gemini_client")
 			client = module.GeminiClient()
-			self.assertEqual(client.api_key, "test-nvidia-key")
+			self.assertEqual(client.api_key, "test-mistral-key")
 
 
 if __name__ == "__main__":

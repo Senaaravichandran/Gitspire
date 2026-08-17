@@ -14,7 +14,7 @@ MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions"
 MISTRAL_MODEL_NAME = "mistral-large-latest"
 MISTRAL_FALLBACK_MODEL = "mistral-small-latest"
 GEMINI_MODEL_NAME = MISTRAL_MODEL_NAME  # Backwards compatibility alias
-GEMINI_MODEL_DISPLAY_NAME = "Gemini 2.5 pro"
+GEMINI_MODEL_DISPLAY_NAME = "Mistral Large"
 MAX_PROMPT_CHARS = 20000
 
 class GeminiClient:
@@ -83,7 +83,7 @@ class GeminiClient:
 
     async def _generate_content(self, prompt: str):
         if len(prompt) > MAX_PROMPT_CHARS:
-            prompt = prompt[:MAX_PROMPT_CHARS] + "\n\n... (truncated for NVIDIA request limits)"
+            prompt = prompt[:MAX_PROMPT_CHARS] + "\n\n... (truncated for model request limits)"
         response = await self._call_mistral_api(prompt, MISTRAL_MODEL_NAME)
         if response.strip():
             return response
@@ -127,7 +127,7 @@ class GeminiClient:
         return ""
 
     def _safe_parse_json(self, text: str) -> dict:
-        logger.warning("NVIDIA raw output preview: %s", text[:800])
+        logger.debug("Model output preview: %s", text[:800])
         text = text.strip()
         
         # Strip potential markdown fences

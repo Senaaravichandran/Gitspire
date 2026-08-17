@@ -77,9 +77,9 @@ async function loadRuntimeMeta() {
     window.GITSPIRE_FRONTEND_URL = meta.frontend_url || null;
     badge.textContent = meta.model_display_name
       ? `Powered by ${meta.model_display_name}`
-      : 'Powered by Gemini';
+      : 'Powered by Mistral';
   } catch (error) {
-    badge.textContent = 'Powered by Gemini';
+    badge.textContent = 'Powered by Mistral';
   }
 }
 
@@ -177,7 +177,7 @@ function renderKnowledgeCore(core) {
       ? (core.regretted_decisions || []).map(renderRegrettedDecision).join('')
       : renderEmptyState(
           'No regretted decisions detected',
-          'Gemini did not infer any high-confidence architectural regrets for this repository analysis.'
+          'The model did not infer any high-confidence architectural regrets for this repository analysis.'
         );
   document.getElementById('badge-regrets').textContent =
     (core.regretted_decisions || []).length;
@@ -260,7 +260,7 @@ document.getElementById('analyze-btn').addEventListener('click', async () => {
       errorEl.textContent = 'The analysis took too long and timed out. Try a smaller repo or retry.';
       errorEl.classList.remove('hidden');
     } else if (e.code === 'GEMINI_ERROR') {
-      errorEl.textContent = "Gemini API timeout. This repo may be too large. Try psf/requests or pallets/flask.";
+      errorEl.textContent = "The AI service timed out. This repo may be too large. Try psf/requests or pallets/flask.";
       errorEl.classList.remove('hidden');
     } else if (e.code === 'PARSE_ERROR') {
       errorEl.textContent = "Response parsing failed.";

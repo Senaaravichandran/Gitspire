@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from fastapi.testclient import TestClient
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-os.environ.setdefault("NVIDIA_GEMINI_API_KEY", "test-key")
+os.environ.setdefault("MISTRAL", "test-key")
 os.environ.setdefault("FIREBASE_DATABASE_URL", "https://example.firebaseio.com")
 
 from api.models.responses import KnowledgeCore
