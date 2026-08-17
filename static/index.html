@@ -95,14 +95,14 @@
       <p class="hero-tagline">Gitspire reconstructs the invisible why-layer of any 
         GitHub repository using long-context AI reasoning.</p>
       <div class="url-input-container">
-        <input type="text" id="repo-url" 
+        <input type="url" id="repo-url"
           placeholder="https://github.com/owner/repo" 
-          autocomplete="off" spellcheck="false" />
-        <button id="analyze-btn" class="btn-primary">
+          autocomplete="url" inputmode="url" spellcheck="false" aria-label="GitHub repository URL" />
+        <button type="button" id="analyze-btn" class="btn-primary">
           Analyze Repository
         </button>
       </div>
-      <div class="error-message hidden" id="hero-error"></div>
+      <div class="error-message hidden" id="hero-error" role="alert" aria-live="assertive"></div>
       <div class="demo-repos">
         <span class="text-label">Try:</span>
         <button class="demo-pill" data-url="https://github.com/fastapi/full-stack-fastapi-template">fastapi</button>
@@ -163,7 +163,7 @@
   </div>
 </section>
 
-<section id="progress-view" class="progress-view hidden">
+<section id="progress-view" class="progress-view hidden" role="status" aria-live="polite" aria-label="Repository analysis progress">
   <div id="progress-lottie" class="progress-lottie" aria-label="GitSpire loading animation" data-lottie-src="/wave.json"></div>
   <div class="progress-steps">
     <div class="step" id="step-fetch">
@@ -197,38 +197,38 @@
     <!-- Populated by JS: 2-3 sentence summary -->
   </div>
   
-  <nav class="tab-nav">
-    <button class="tab-btn active" data-tab="decisions">
+  <nav class="tab-nav" role="tablist" aria-label="Repository analysis sections">
+    <button type="button" id="tab-button-decisions" class="tab-btn active" data-tab="decisions" role="tab" aria-selected="true" aria-controls="tab-decisions">
       Decision Atoms <span class="badge" id="badge-decisions">0</span>
     </button>
-    <button class="tab-btn" data-tab="assumptions">
+    <button type="button" id="tab-button-assumptions" class="tab-btn" data-tab="assumptions" role="tab" aria-selected="false" aria-controls="tab-assumptions" tabindex="-1">
       Assumption Graph <span class="badge" id="badge-assumptions">0</span>
     </button>
-    <button class="tab-btn" data-tab="failures">
+    <button type="button" id="tab-button-failures" class="tab-btn" data-tab="failures" role="tab" aria-selected="false" aria-controls="tab-failures" tabindex="-1">
       Failure Memory <span class="badge" id="badge-failures">0</span>
     </button>
-    <button class="tab-btn ghost-tab" data-tab="ghosts">
+    <button type="button" id="tab-button-ghosts" class="tab-btn ghost-tab" data-tab="ghosts" role="tab" aria-selected="false" aria-controls="tab-ghosts" tabindex="-1">
       Ghost Decisions <span class="badge danger" id="badge-ghosts">0</span>
     </button>
-    <button class="tab-btn" data-tab="regrets">
+    <button type="button" id="tab-button-regrets" class="tab-btn" data-tab="regrets" role="tab" aria-selected="false" aria-controls="tab-regrets" tabindex="-1">
       Regretted Decisions <span class="badge" id="badge-regrets">0</span>
     </button>
-    <button class="tab-btn" data-tab="orphans">
+    <button type="button" id="tab-button-orphans" class="tab-btn" data-tab="orphans" role="tab" aria-selected="false" aria-controls="tab-orphans" tabindex="-1">
       Orphaned Architecture <span class="badge" id="badge-orphans">0</span>
     </button>
-    <button class="tab-btn" data-tab="pulse">
+    <button type="button" id="tab-button-pulse" class="tab-btn" data-tab="pulse" role="tab" aria-selected="false" aria-controls="tab-pulse" tabindex="-1">
       Decision Pulse <span class="badge" id="badge-pulse">0</span>
     </button>
   </nav>
   
   <div class="tab-content">
-    <div class="tab-panel active" id="tab-decisions"></div>
-    <div class="tab-panel hidden"  id="tab-assumptions"></div>
-    <div class="tab-panel hidden"  id="tab-failures"></div>
-    <div class="tab-panel hidden"  id="tab-ghosts"></div>
-    <div class="tab-panel hidden"  id="tab-regrets"></div>
-    <div class="tab-panel hidden"  id="tab-orphans"></div>
-    <div class="tab-panel hidden"  id="tab-pulse"></div>
+    <div class="tab-panel active" id="tab-decisions" role="tabpanel" aria-labelledby="tab-button-decisions" tabindex="0"></div>
+    <div class="tab-panel hidden" id="tab-assumptions" role="tabpanel" aria-labelledby="tab-button-assumptions" tabindex="0"></div>
+    <div class="tab-panel hidden" id="tab-failures" role="tabpanel" aria-labelledby="tab-button-failures" tabindex="0"></div>
+    <div class="tab-panel hidden" id="tab-ghosts" role="tabpanel" aria-labelledby="tab-button-ghosts" tabindex="0"></div>
+    <div class="tab-panel hidden" id="tab-regrets" role="tabpanel" aria-labelledby="tab-button-regrets" tabindex="0"></div>
+    <div class="tab-panel hidden" id="tab-orphans" role="tabpanel" aria-labelledby="tab-button-orphans" tabindex="0"></div>
+    <div class="tab-panel hidden" id="tab-pulse" role="tabpanel" aria-labelledby="tab-button-pulse" tabindex="0"></div>
   </div>
   
   <div class="tools-grid">
@@ -239,10 +239,10 @@
         <h3>Ask Why</h3>
       </div>
       <textarea id="query-input" rows="3"
-        placeholder="Why does the auth middleware skip /health routes?">
+        aria-label="Question about this repository" maxlength="500" placeholder="Why does the auth middleware skip /health routes?">
       </textarea>
-      <button id="query-btn" class="btn-primary">Ask Gitspire</button>
-      <div id="query-response" class="tool-response hidden"></div>
+      <button type="button" id="query-btn" class="btn-primary">Ask Gitspire</button>
+      <div id="query-response" class="tool-response hidden" role="status" aria-live="polite"></div>
     </div>
     
     <div class="tool-panel" id="alarm-panel">
@@ -255,10 +255,10 @@
       <p class="tool-description">Paste new code to check against 
         extracted assumptions.</p>
       <textarea id="alarm-input" rows="6"
-        placeholder="Paste your code snippet here...">
+        aria-label="Code snippet to check" maxlength="10000" placeholder="Paste your code snippet here...">
       </textarea>
-      <button id="alarm-btn" class="btn-danger">Check Assumptions</button>
-      <div id="alarm-response" class="tool-response hidden"></div>
+      <button type="button" id="alarm-btn" class="btn-danger">Check Assumptions</button>
+      <div id="alarm-response" class="tool-response hidden" role="status" aria-live="polite"></div>
     </div>
     
     <div class="tool-panel" id="onboard-panel">
@@ -269,9 +269,9 @@
         <h3>Onboarding Path</h3>
       </div>
       <input type="text" id="onboard-input" 
-        placeholder="I want to add OAuth2 authentication..." />
-      <button id="onboard-btn" class="btn-secondary">Generate Path</button>
-      <div id="onboard-response" class="tool-response hidden"></div>
+        aria-label="Feature to build" maxlength="1000" placeholder="I want to add OAuth2 authentication..." />
+      <button type="button" id="onboard-btn" class="btn-secondary">Generate Path</button>
+      <div id="onboard-response" class="tool-response hidden" role="status" aria-live="polite"></div>
     </div>
     
   </div>
@@ -280,7 +280,6 @@
 <script>
   window.GITSPIRE_API_BASE_URL = 'https://gitspire-pvt.onrender.com';
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
 <script src="/js/api.js"></script>
 <script src="/js/ui.js"></script>

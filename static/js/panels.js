@@ -1,19 +1,44 @@
 // Tab switching
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-selected', 'false');
+      b.tabIndex = -1;
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => {
+      p.classList.add('hidden');
+      p.classList.remove('active');
+    });
     btn.classList.add('active');
-    document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
+    btn.setAttribute('aria-selected', 'true');
+    btn.tabIndex = 0;
+    const panel = document.getElementById('tab-' + btn.dataset.tab);
+    panel.classList.remove('hidden');
+    panel.classList.add('active');
+  });
+
+  btn.addEventListener('keydown', event => {
+    const tabs = Array.from(document.querySelectorAll('.tab-btn'));
+    const currentIndex = tabs.indexOf(btn);
+    let nextIndex = null;
+    if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % tabs.length;
+    if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+    if (event.key === 'Home') nextIndex = 0;
+    if (event.key === 'End') nextIndex = tabs.length - 1;
+    if (nextIndex !== null) {
+      event.preventDefault();
+      tabs[nextIndex].click();
+      tabs[nextIndex].focus();
+    }
   });
 });
 
 function handleError(responseEl, e) {
-  if (e.code === 'NOT_ANALYZED') {
-    responseEl.innerHTML = `<p style="color:var(--accent-danger)">Analyze this repository first before querying.</p>`;
-  } else {
-    responseEl.innerHTML = `<p style="color:var(--accent-danger)">${e.message || 'An error occurred'}</p>`;
-  }
+  responseEl.textContent = e.code === 'NOT_ANALYZED'
+    ? 'Analyze this repository first before querying.'
+    : e.message || 'An error occurred';
+  responseEl.style.color = 'var(--accent-danger)';
   responseEl.classList.remove('hidden');
 }
 
@@ -90,5 +115,5 @@ document.getElementById('onboard-btn').addEventListener('click', async () => {
 // Evidence chip click handler (delegated)
 document.body.addEventListener('click', e => {
   const chip = e.target.closest('.evidence-chip[data-href]');
-  if (chip) window.open(chip.dataset.href, '_blank');
+  if (chip) window.open(chip.dataset.href, '_blank', 'noopener,noreferrer');
 });

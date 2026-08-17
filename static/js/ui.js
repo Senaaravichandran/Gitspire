@@ -1,3 +1,25 @@
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function escapeDisplayData(value) {
+  if (typeof value === 'string') return escapeHtml(value);
+  if (Array.isArray(value)) return value.map(escapeDisplayData);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, escapeDisplayData(item)]));
+  }
+  return value;
+}
+
+function renderPlainText(value) {
+  return `<p>${escapeHtml(value).replaceAll('\n', '<br>')}</p>`;
+}
+
 function getRepoOwnerAndName(url) {
   if (!url) return { owner: '', repo: '' };
   try {
@@ -455,7 +477,8 @@ function renderPulseReport(report) {
 }
 
 function renderQueryResponse(response) {
-  const answerHtml = marked.parse(response.answer || "");
+  response = escapeDisplayData(response);
+  const answerHtml = renderPlainText(response.answer || '');
   const chips = (response.citations || []).map(renderEvidenceChip).join('');
   
   let confColor = 'var(--text-secondary)';
@@ -477,6 +500,7 @@ function renderQueryResponse(response) {
 }
 
 function renderAlarmResponse(response) {
+  response = escapeDisplayData(response);
   if (response.violation_detected) {
     let advisoryHtml = '';
     if (response.new_assumption_introduced && response.new_assumption_introduced !== "null") {
@@ -515,6 +539,7 @@ function renderAlarmResponse(response) {
 }
 
 function renderOnboardingChecklist(response) {
+  response = escapeDisplayData(response);
   if (!response.checklist || response.checklist.length === 0) {
     return `<p class="text-secondary">No specific risks identified for this feature.</p>`;
   }

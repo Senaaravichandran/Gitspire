@@ -358,3 +358,11 @@
   background: var(--accent-warning-soft-2);
   border-left: 2px solid var(--accent-warning);
 }
+.tab-btn:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+.tab-panel:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 3px;
+}

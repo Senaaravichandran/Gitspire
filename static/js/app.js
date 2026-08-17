@@ -145,6 +145,7 @@ function stopProgressSimulation() {
 function renderKnowledgeCore(core) {
   window._currentRepo = core.repo_url;
   document.getElementById('summary-card').textContent = core.summary;
+  core = escapeDisplayData(core);
   renderGuardVerdict(core);
   
   // Decision Atoms tab
